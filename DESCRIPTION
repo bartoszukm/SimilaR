@@ -1,0 +1,26 @@
+Package: SimilaR
+Version: 1.0
+Date: 2018-04-10
+Title: Source Code Similarity Detection
+Description: Implementation of a novel method based on program dependence graphs to 
+    determine R code similarity. A method returns value(s) of similarity from [0,1] as well as binary decision (0 or 1).
+URL: http://similar.rexamine.com/
+BugReports: http://similar.rexamine.com/
+Type: Package
+Depends:
+    R (>= 3.1.0),
+    stringi
+License: GPL (>= 3)
+Authors@R: c(
+    person("Maciej", "Bartoszuk", role = c("aut", "cre"),
+    email = "bartoszuk@rexamine.com"),
+    person("Marek", "Gagolewski", role = "aut",
+    email = "gagolews@rexamine.com")
+    )
+Roxygen: list(wrap = FALSE)
+Imports: Rcpp (>= 0.12.0)
+Suggests:
+    testthat
+LinkingTo: Rcpp (>= 0.12.0), BH
+SystemRequirements: C++11
+RoxygenNote: 6.0.1

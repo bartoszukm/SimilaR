@@ -1,0 +1,42 @@
+# History files
+.Rhistory
+Rplots.pdf
+*_cache
+*_files
+
+# Example code in package build process
+*-Ex.R
+
+# R data files from past sessions
+.Rdata
+
+# RStudio files
+.Rproj.user/
+.Rhistory
+.RData
+DataStructures.Rcheck
+
+# compiled/precompiled files
+*.o
+*.so
+*.dll
+*.a
+src-i386/
+src-x64/
+
+# backup files
+*~
+*.backup
+*.bak
+
+# KDevelop project files:
+*.kdev4
+.kdev4
+
+# LaTeX/knitr dust:
+*.aux
+*.log
+*.out
+cache-knitr/
+cache/
+.Rproj.user
