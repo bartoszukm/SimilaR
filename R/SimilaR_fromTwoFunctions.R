@@ -15,17 +15,15 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #' @title
-#' SimilaR_fromDirectory
+#' SimilaR_fromTwoFunctions
 #'
 #' @description
-#' An implementation of the SimilaR algorithm - a novel R code similarity evaluation algorithm based on program dependence graphs.
-#' This version gets a path to directory, where *.R files are stored to be compared.
+#' An implementation of the SimilaR algorithm - a novel R code similarity evaluation algorithm based on program dependence graphs. 
+#' This version gets two function objects and compare them. It can be used e.g. for testing purposes.
 #'
-#' @param dirname path to a directory with R source files to be compared.
+#' @param function1 a function object to compare
+#' @param function2 a function object to compare
 #' @param returnType \code{"data.frame"} or \code{"matrix"}; indicates the output object type (see below).
-#' @param fileTypes \code{"function"} or \code{"file"}; indicates which pairs of functions extracted from the source files in \code{dirname} should be compared. 
-#' \code{"function"} means that every function should be compared against every other function, even if both of them
-#' are defined in the same file. \code{"file"} means that only the functions defined in different files should be compared.
 #' @param aggregation \code{"sym"}, \code{"tnorm"}, or \code{"both"}; specifies which model of similarity asymmetry should be used. \code{"sym"} means
 #' that one value of similarity is computed. \code{"tnorm"} means that two values are obtained: one means how much
 #' the first function is a subset of the second, and the other one means how much the second function is a subset of the first.
@@ -38,11 +36,11 @@
 #' evaluating how much the second function is a subset of the first one. The user may possibly wish to aggregate these two values by some custom aggregation function.
 #'
 #' @return
-#' If \code{returnType} is equal to "data.frame", a data frame is returned, where every row gives the information about the similarity of a different pair of functions.
+#' If \code{returnType} is equal to "data.frame", a data frame is returned, with just one row that gives the information about the similarity of a given pair of functions.
 #' Columns of the data frame are as follows:
 #' \itemize{
-#'      \item \code{name1} - name of the first function in a pair. Name is constructed as follows: fileName.R functionName
-#'      \item \code{name2} - name of the second function in a pair. Name is constructed as follows: fileName.R functionName
+#'      \item \code{name1} - name of the first function in a pair. Name is obtained by substitute() function
+#'      \item \code{name2} - name of the second function in a pair. Name is obtained by substitute() function
 #'      \item \code{SimilaR} - values from [0,1] interval returned by SimilaR code similarity algorithm. 
 #'                                                                    1 means identical function, 0 means totally dissimilar functions. 
 #'                                                                    If \code{aggregation} is equal "both", two columns are returned:
@@ -51,23 +49,21 @@
 #'      \item \code{decision} - binary value, 0 or 1. 1 means that these two functions are similar, while 0 means otherwise.
 #'      
 #' }
-#' Rows in the dataframe are sorted by column \code{SimilaR}, not increasingly.
 #' 
 #' If \code{returnType} is equal to "matrix", a square matrix is returned. (i,j) position equals a similarity measure between i-th and j-th function. 
 #' When \code{aggregation} is equal to "sym" or "tnorm", the matrix is symmetric. For "both" it is not symmetric and (i,j) means how much the i-th function is a subset of the second,
 #' while (j,i) means how much the j-th function is a subset of the i-th. Colnames and rownames of the matrix are names of compared functions, similarly to columns \code{name1} and 
-#' \code{name2} in a dataframe.
+#' \code{name2} in a dataframe. Obviously in this version of function the matrix has 2 rows and 2 columns.
 #'
 #' @examples
-#' \dontrun{
-#' dirname = ... # path to directory with files containing function definitions to compare
+#' f1 <- function(x) {x*x}
+#' f2 <- function(x,y) {x+y}
 #'
-#' results <- SimilaR_fromDirectory(dirname,
-#'                                  returnType = "data.frame",
-#'                                  fileTypes="file",
-#'                                  aggregation = "sym")
+#' results <- SimilaR_fromTwoFunctions(f1,
+#'                                     f2,
+#'                                     returnType = "data.frame",
+#'                                     aggregation = "sym")
 #' head(results)
-#' }
 #' @references
 #' Bartoszuk M., Ph.D. thesis, in preparation, Warsaw University of Technology, Warsaw, Poland, 2018.
 #' 
@@ -94,21 +90,20 @@
 #' Part III (CCIS 444)}, Springer-Verlag, Heidelberg, 2014, pp. 21-30.
 #'
 #' @export
-SimilaR_fromDirectory <- function(dirname,
-                    returnType = c("data.frame","matrix"),
-                    fileTypes=c("function", "file"),
-                    aggregation = c("sym","tnorm", "both"))
+SimilaR_fromTwoFunctions <- function(function1, 
+                                     function2,
+                                     returnType = c("data.frame","matrix"),
+                                     aggregation = c("sym","tnorm", "both"))
 {
-  submissionType <- switch(fileTypes,
-                          "function" = 1,
-                          "file" = 2,
-                          "directory" = 3)
+  if(!is.function(function1))
+    stop("The first argument is not a function.")
+  if(!is.function(function2))
+    stop("The second argument is not a function.")
   
-  parsesSumsFunctionNames <- readFilesAndGetFunctionNames(dirname, submissionType=submissionType, rewriteFiles=FALSE)
-  parses<-parsesSumsFunctionNames$parses
-  functionNames<-parsesSumsFunctionNames$functionNames
-  sums <- parsesSumsFunctionNames$sums
-  parsess<- parses$parses
+  functionNames<-c(as.character(substitute(function1)), as.character(substitute(function2)))
+  parsess <- list(parse(text=c(stri_paste(functionNames[[1]], "<-"), deparse(function1))),
+                  parse(text=c(stri_paste(functionNames[[2]], "<-"), deparse(function2))))
+  sums<-c(0,1,2)
   
   SimilaR_general(parsess, sums, functionNames, returnType, aggregation)
 }
