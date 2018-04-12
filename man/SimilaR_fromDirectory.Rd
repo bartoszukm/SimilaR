@@ -54,15 +54,30 @@ or two different values, one measuring how much the first function is a subset o
 evaluating how much the second function is a subset of the first one. The user may possibly wish to aggregate these two values by some custom aggregation function.
 }
 \examples{
-\dontrun{
-dirname = ... # path to directory with files containing function definitions to compare
-
-results <- SimilaR_fromDirectory(dirname,
+## Typical example, we want to compare functions from different files, 
+## but we do not want to compare two functions from the same file.
+## A result is a dataframe. There will be one value describing
+## similarity level.
+SimilaR_fromDirectory(system.file("testdata","data",package="SimilaR"),
                                  returnType = "data.frame",
                                  fileTypes="file",
                                  aggregation = "sym")
-head(results)
-}
+
+## In this example we want to compare every pair of functions: even these,
+## which are from the same file. A result is a dataframe. There will be
+## two values describing similariy levels. 
+SimilaR_fromDirectory(system.file("testdata","data2",package="SimilaR"),
+                      returnType = "data.frame",
+                      fileTypes="function",
+                      aggregation = "both")
+
+## In this example returned value is a symmetric matrix.
+SimilaR_fromDirectory(system.file("testdata","data2",package="SimilaR"),
+                      returnType = "matrix",
+                      fileTypes="function",
+                      aggregation = "tnorm")
+
+
 }
 \references{
 Bartoszuk M., Ph.D. thesis, in preparation, Warsaw University of Technology, Warsaw, Poland, 2018.
