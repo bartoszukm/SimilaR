@@ -1,6 +1,6 @@
 Package: SimilaR
 Version: 1.0.2
-Date: 2018-04-12
+Date: 2018-06-21
 Title: R Source Code Similarity Evaluation
 Description: An Implementation of a novel method to determine similarity of R 
     functions based on program dependence graphs, 
