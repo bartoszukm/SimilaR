@@ -13,9 +13,11 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */   
+ */
 
 #include "postprocessingPDG.h"
+
+#include <algorithm>
 
 string PostprocessingPDG::sideEffectsFunctions[] = {
     "stopifnot", "stop", "warning",
@@ -153,9 +155,11 @@ bool PostprocessingPDG::isSideEffectFunction(string functionName)
 
 void PostprocessingPDG::removeSingleInstructions(GraphType& g)
 {
+    vector<vertex_t> toRemove;
     graph_traits<GraphType>::vertex_iterator vi, vi_end, next;
     tie(vi, vi_end) = vertices(g);
 
+    // Rcout << "num_vertices(g)-1 = " << num_vertices(g)-1 << endl;
     g[num_vertices(g)-1].lastInstruction = true;
     bool changes = true;
     while(changes)
@@ -164,6 +168,16 @@ void PostprocessingPDG::removeSingleInstructions(GraphType& g)
         tie(vi, vi_end) = vertices(g);
         for (next = vi; vi != vi_end; vi = next) {
             ++next;
+            // Rcout << "*next = " << *next << endl;
+            // Rcout << "*vi_end = " << *vi_end << endl;
+            // Rcout << "*vi = " << *vi << endl;
+            // Rcout << "*out_degree(*vi,g) = " << out_degree(*vi, g) << endl;
+            // Rcout << "g[*vi].functionName = " << g[*vi].functionName << endl;
+            // Rcout << "g[*vi].lastInstruction = " << g[*vi].lastInstruction << endl;
+            // Rcout << "g[*vi].name = " << g[*vi].name << endl;
+            // Rcout << "count = " << std::count(g.vertex_set().begin(), g.vertex_set().end(), *vi) << endl;
+            // Rcout << graphUtils::getCanonicalName(g[*vi].functionName, g[graph_bundle].variableName2variableName) << endl;
+            
             if(!g[*vi].lastInstruction &&
                out_degree(*vi,
                           g) == 0 &&
@@ -177,10 +191,18 @@ void PostprocessingPDG::removeSingleInstructions(GraphType& g)
            && !(g[*vi].color == color_twoBrackets))
             {
                 changes = true;
-                clear_vertex(*vi, g);
-                remove_vertex(*vi, g);
+                toRemove.push_back(*vi);
+                //clear_vertex(*vi, g);
+                //remove_vertex(*vi, g);
             }
         }
+        
+        for(size_t i=0;i<toRemove.size(); ++i)
+        {
+          clear_vertex(toRemove[i], g);
+          remove_vertex(toRemove[i], g);
+        }
+        toRemove.clear();
     }
 }
 
