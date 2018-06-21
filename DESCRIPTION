@@ -1,5 +1,5 @@
 Package: SimilaR
-Version: 1.0.1
+Version: 1.0.2
 Date: 2018-04-12
 Title: R Source Code Similarity Evaluation
 Description: An Implementation of a novel method to determine similarity of R 
