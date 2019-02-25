@@ -192,8 +192,9 @@ void PostprocessingPDG::removeSingleInstructions(GraphType& g)
             {
                 changes = true;
                 toRemove.push_back(*vi);
-                //clear_vertex(*vi, g);
-                //remove_vertex(*vi, g);
+                // clear_vertex(*vi, g);
+                // remove_vertex(*vi, g);
+                break;
             }
         }
         
