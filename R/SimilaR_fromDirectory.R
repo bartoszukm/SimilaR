@@ -114,6 +114,10 @@ SimilaR_fromDirectory <- function(dirname,
                     fileTypes=c("function", "file"),
                     aggregation = c("sym","tnorm", "both"))
 {
+  returnType <- match.arg(returnType)
+  fileTypes <- match.arg(fileTypes)
+  aggregation <- match.arg(aggregation)
+  
   submissionType <- switch(fileTypes,
                           "function" = 1,
                           "file" = 2,

@@ -114,6 +114,9 @@ SimilaR_fromTwoFunctions <- function(function1,
   if(!is.function(function2))
     stop("The second argument is not a function.")
   
+  returnType <- match.arg(returnType)
+  aggregation <- match.arg(aggregation)
+  
   functionNames<-c(as.character(substitute(function1)), as.character(substitute(function2)))
   parsess <- list(parse(text=c(stri_paste(functionNames[[1]], "<-"), deparse(function1))),
                   parse(text=c(stri_paste(functionNames[[2]], "<-"), deparse(function2))))

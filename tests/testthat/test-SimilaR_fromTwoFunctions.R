@@ -100,6 +100,48 @@ test_that("both_dataframe", {
   expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions12 + dataFrameWithAssessment$SimilaR_fromTwoFunctions21) <= 0))
 })
 
+test_that("match_arg_aggregation", {
+  
+  f1 <- function(x) {x*x}
+  f2 <- function(x,y) {x+y}
+  
+  dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
+                                                      f2, 
+                                                      returnType = "data.frame"
+                                                      )
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_equal(nrow(dataFrameWithAssessment), 1)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions) <= 0))
+})
+
+test_that("match_arg_returnType", {
+  
+  f1 <- function(x) {x*x}
+  f2 <- function(x,y) {x+y}
+  
+  dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
+                                                      f2, 
+                                                      aggregation = "both"
+  )
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 5)
+  expect_equal(nrow(dataFrameWithAssessment), 1)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions) <= 0))
+})
+
+test_that("match_arg", {
+  
+  f1 <- function(x) {x*x}
+  f2 <- function(x,y) {x+y}
+  
+  dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, f2)
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_equal(nrow(dataFrameWithAssessment), 1)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions) <= 0))
+})
+
 ######################################
 ######################################
 

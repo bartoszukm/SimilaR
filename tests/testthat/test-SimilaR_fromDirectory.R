@@ -71,6 +71,52 @@ test_that("simple_function", {
   expect_equal(nrow(dataFrameWithAssessment), 91)
 })
 
+test_that("match_arg_returnType", {
+  dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
+  
+  dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
+                                                   fileTypes="file",
+                                                   aggregation = "sym")
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromDirectory) <= 0))
+  expect_equal(table(dataFrameWithAssessment$decision), table(c(rep(0,81),rep(1,10))))
+})
+
+test_that("match_arg_fileTypes", {
+  dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
+  
+  dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
+                                                   returnType = "data.frame",
+                                                   aggregation = "sym")
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromDirectory) <= 0))
+  expect_equal(table(dataFrameWithAssessment$decision), table(c(rep(0,81),rep(1,10))))
+})
+
+test_that("match_arg_aggregation", {
+  dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
+  
+  dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
+                                                   fileTypes="file",
+                                                   returnType = "data.frame")
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromDirectory) <= 0))
+  expect_equal(table(dataFrameWithAssessment$decision), table(c(rep(0,81),rep(1,10))))
+})
+
+test_that("match_arg", {
+  dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
+  
+  dataFrameWithAssessment <- SimilaR_fromDirectory(dirname)
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromDirectory) <= 0))
+  expect_equal(table(dataFrameWithAssessment$decision), table(c(rep(0,81),rep(1,10))))
+})
+
 ####################
 ####################
 
