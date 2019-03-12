@@ -4,13 +4,16 @@
 \alias{SimilaR_fromTwoFunctions}
 \title{SimilaR_fromTwoFunctions}
 \usage{
-SimilaR_fromTwoFunctions(function1, function2, returnType = c("data.frame",
-  "matrix"), aggregation = c("sym", "tnorm", "both"))
+SimilaR_fromTwoFunctions(function1, function2, functionNames,
+  returnType = c("data.frame", "matrix"), aggregation = c("tnorm",
+  "sym", "both"))
 }
 \arguments{
 \item{function1}{a function object to compare}
 
 \item{function2}{a function object to compare}
+
+\item{functionNames}{optional functions' names included in returned value}
 
 \item{returnType}{\code{"data.frame"} or \code{"matrix"}; indicates the output object type (see below).}
 
@@ -56,6 +59,13 @@ f2 <- function(x,y) {x+y}
 ## A dataframe is returned: 1 row, 4 columns
 SimilaR_fromTwoFunctions(f1,
                          f2,
+                         returnType = "data.frame",
+                         aggregation = "tnorm")
+                         
+## Custom names in returned data frame                       
+SimilaR_fromTwoFunctions(f1,
+                         f2,
+                         functionNames = c("first", "second"),
                          returnType = "data.frame",
                          aggregation = "tnorm")
                          

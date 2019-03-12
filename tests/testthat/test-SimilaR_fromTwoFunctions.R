@@ -145,6 +145,64 @@ test_that("match_arg", {
 ######################################
 ######################################
 
+test_that("functionNames1", {
+  
+  f1 <- function(x) {x*x}
+  f2 <- function(x,y) {x+y}
+  funs <- list(f1, f2)
+  
+  dataFrameWithAssessment <- SimilaR_fromTwoFunctions(funs[[1]], funs[[2]])
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_equal(nrow(dataFrameWithAssessment), 1)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions) <= 0))
+})
+
+test_that("functionNames2", {
+  
+  f1 <- function(x) {x*x}
+  `name<-` <- function(x){x*x}
+  
+  dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`)
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_equal(nrow(dataFrameWithAssessment), 1)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions) <= 0))
+})
+
+test_that("functionNames3", {
+  
+  f1 <- function(x) {x*x}
+  `name<-` <- function(x){x*x}
+  
+  dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`, functionNames = c("first", "second<-"))
+  expect_true(is.data.frame(dataFrameWithAssessment))
+  expect_equal(ncol(dataFrameWithAssessment), 4)
+  expect_equal(nrow(dataFrameWithAssessment), 1)
+  expect_true(all(diff(dataFrameWithAssessment$SimilaR_fromTwoFunctions) <= 0))
+  expect_equal(as.character(dataFrameWithAssessment$name1[1]), "first")
+  expect_equal(as.character(dataFrameWithAssessment$name2[1]), "second..")
+})
+
+test_that("functionNames4", {
+  
+  f1 <- function(x) {x*x}
+  `name<-` <- function(x){x*x}
+  
+  expect_error(dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`, functionNames = c("first", "second<-", "three")))
+})
+
+test_that("functionNames5", {
+  
+  f1 <- function(x) {x*x}
+  `name<-` <- function(x){x*x}
+  
+  expect_error(dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`, functionNames = c(1, 2)))
+})
+
+######################################
+######################################
+
 
 test_that("sym_matrix", {
   f1 <- function(x) {x*x}

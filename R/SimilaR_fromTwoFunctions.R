@@ -23,6 +23,7 @@
 #'
 #' @param function1 a function object to compare
 #' @param function2 a function object to compare
+#' @param functionNames optional functions' names included in returned value
 #' @param returnType \code{"data.frame"} or \code{"matrix"}; indicates the output object type (see below).
 #' @param aggregation \code{"sym"}, \code{"tnorm"}, or \code{"both"}; specifies which model of similarity asymmetry should be used. \code{"sym"} means
 #' that one value of similarity is computed. \code{"tnorm"} means that two values are obtained: one means how much
@@ -62,6 +63,13 @@
 #' ## A dataframe is returned: 1 row, 4 columns
 #' SimilaR_fromTwoFunctions(f1,
 #'                          f2,
+#'                          returnType = "data.frame",
+#'                          aggregation = "tnorm")
+#'                          
+#' ## Custom names in returned data frame                       
+#' SimilaR_fromTwoFunctions(f1,
+#'                          f2,
+#'                          functionNames = c("first", "second"),
 #'                          returnType = "data.frame",
 #'                          aggregation = "tnorm")
 #'                          
@@ -106,20 +114,33 @@
 #' @export
 SimilaR_fromTwoFunctions <- function(function1, 
                                      function2,
+                                     functionNames,
                                      returnType = c("data.frame","matrix"),
-                                     aggregation = c("sym","tnorm", "both"))
+                                     aggregation = c("tnorm", "sym", "both")
+                                     )
 {
   if(!is.function(function1))
     stop("The first argument is not a function.")
   if(!is.function(function2))
     stop("The second argument is not a function.")
+  if(!missing(functionNames))
+  {
+    stopifnot(is.character(functionNames))
+    stopifnot(length(functionNames) == 2)
+    functionNames <- make.names(functionNames)
+  }
   
   returnType <- match.arg(returnType)
   aggregation <- match.arg(aggregation)
   
-  functionNames<-c(as.character(substitute(function1)), as.character(substitute(function2)))
+  if(missing(functionNames))
+  {
+    functionNames<-c(make.names(deparse(substitute(function1))), make.names(deparse(substitute(function2))))
+  }
+  
   parsess <- list(parse(text=c(stri_paste(functionNames[[1]], "<-"), deparse(function1))),
                   parse(text=c(stri_paste(functionNames[[2]], "<-"), deparse(function2))))
+
   sums<-c(0,1,2)
   
   SimilaR_general(parsess, sums, functionNames, returnType, aggregation)

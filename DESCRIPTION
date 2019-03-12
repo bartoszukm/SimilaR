@@ -1,5 +1,5 @@
 Package: SimilaR
-Version: 1.0.3
+Version: 1.0.4
 Date: 2019-02-25
 Title: R Source Code Similarity Evaluation
 Description: An Implementation of a novel method to determine similarity of R 
@@ -26,4 +26,4 @@ Suggests:
     testthat
 LinkingTo: Rcpp (>= 0.12.0), BH
 SystemRequirements: C++11
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

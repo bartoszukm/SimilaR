@@ -112,7 +112,7 @@
 SimilaR_fromDirectory <- function(dirname,
                     returnType = c("data.frame","matrix"),
                     fileTypes=c("function", "file"),
-                    aggregation = c("sym","tnorm", "both"))
+                    aggregation = c("tnorm", "sym", "both"))
 {
   returnType <- match.arg(returnType)
   fileTypes <- match.arg(fileTypes)

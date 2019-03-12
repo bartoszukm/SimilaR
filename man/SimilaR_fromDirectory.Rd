@@ -5,7 +5,7 @@
 \title{SimilaR_fromDirectory}
 \usage{
 SimilaR_fromDirectory(dirname, returnType = c("data.frame", "matrix"),
-  fileTypes = c("function", "file"), aggregation = c("sym", "tnorm",
+  fileTypes = c("function", "file"), aggregation = c("tnorm", "sym",
   "both"))
 }
 \arguments{
