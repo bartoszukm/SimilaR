@@ -2,9 +2,9 @@ Package: SimilaR
 Version: 1.0.4
 Date: 2019-03-13
 Title: R Source Code Similarity Evaluation
-Description: An implementation of a novel method to quantify the similarity of R 
-    functions based on program dependence graphs.
-    Possible use cases include detection of code clone for improving
+Description: An implementation of a novel method to quantify the similarity
+    the code-base of R functions by means of program dependence graphs.
+    Possible use cases include detection of code clones for improving
     software quality and of plagiarism among students' homework assignments.
 URL: http://similar.rexamine.com/
 BugReports: https://github.com/bartoszukm/SimilaR/issues
@@ -14,14 +14,15 @@ Depends:
 License: GPL (>= 3)
 Authors@R: c(
     person("Maciej", "Bartoszuk", role = c("aut", "cre"),
-    email = "bartoszuk@rexamine.com"),
+    email = "bartoszuk@rexamine.com",
+    comment = c(ORCID = "0000-0001-6088-8273")),
     person("Marek", "Gagolewski", role = "aut",
     email = "marek@gagolewski.com",
     comment = c(ORCID = "0000-0003-0637-6028"))
     )
 Roxygen: list(wrap = FALSE)
-Imports: 
-    Rcpp (>= 0.12.0), 
+Imports:
+    Rcpp (>= 0.12.0),
     stringi
 Suggests:
     testthat

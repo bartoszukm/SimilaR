@@ -1,5 +1,5 @@
 ##    SimilaR package for R
-##    Copyright (C) 2018 M. Bartoszuk, M. Gagolewski
+##    Copyright (C) 2018-2019-2019 by by M. Bartoszuk, M. Gagolewski
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 readFilesAndGetFunctionNames <-function(dirname, submissionType=2, rewriteFiles=TRUE)
 {
-  filesNames <- getFileNamesWithPattern(dirname,"\\.R$|\\.r$")   
+  filesNames <- getFileNamesWithPattern(dirname,"\\.R$|\\.r$")
   if(length(filesNames) <= 1 && submissionType==2)
   {
     stop(stri_paste("Number of files with extension *.R in directory '", dirname, "' is less or equal 1 while fileTypes is equal to 'file'."))
@@ -30,7 +30,7 @@ readFilesAndGetFunctionNames <-function(dirname, submissionType=2, rewriteFiles=
   sums <- cumsum(lapply(parses$parses,length))
   sums <- c(0,sums)
   functionNames<-getFunctionNames(parses$filesNamesRepeated,sums,unlist(parses$parses))
-  
+
   list(parses=parses, sums=sums, functionNames=functionNames)
 }
 
@@ -54,15 +54,15 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
    {
       mapply(function(text,file){stri_write_lines(str = text, fname = file)},unlist(filesText,recursive = FALSE),unlist(files))
    }
-   
+
    errorText <- character(0)
-   parses <- lapply(filesText,function(x){lapply(x,function(el){tryCatch(parse(text=el,encoding="UTF-8"), 
-                                                               error=function(e) { 
+   parses <- lapply(filesText,function(x){lapply(x,function(el){tryCatch(parse(text=el,encoding="UTF-8"),
+                                                               error=function(e) {
                                                                   errorText <<- c(errorText,paste(e,"\n"))
                                                                      return(NA)
                                                                      })})})
-   
-   
+
+
    notParsed <- unlist(filesNames)[unlist(lapply(parses,is.na))]
    if(length(notParsed) != 0)
    {
@@ -71,9 +71,9 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
       errorText <- paste(errorText,"\nFiles failed to parse: ",filesNotParsed)
       stop(stri_paste("Files not parsed: ", errorText))
    }
-   
+
    if(length(errorText)==0) errorText <- ""
-   
+
    for (i in seq_along(parses))
    {
       for(j in seq_along(parses[[i]]))
@@ -88,7 +88,7 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
          }))]
       }
    }
-   
+
    if(submissionType == 2) # Every file against the rest
    {
       parses <- unlist(parses, recursive = FALSE)
@@ -96,7 +96,7 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
       return(list(parses = parses, errorText = errorText,filesNamesRepeated=filesNamesRepeated))
    }
    if(submissionType == 1) # Every function against the rest
-   {  
+   {
       parses <- unlist(parses, recursive = FALSE)
       parsesUnlist <- unlist(parses)
       parsesUnlist <- lapply(parsesUnlist, function(x) as.expression(x))
@@ -107,7 +107,7 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
    {
       return(list(parses = parses, errorText = errorText, filesNamesRepeated = filesNames))
    }
-   
+
 }
 
 getFunctionNames <- function(filesNamesListShort,sums,parses)
