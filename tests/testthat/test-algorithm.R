@@ -690,3 +690,51 @@ test_that("return3", {
   expect_lt(res[1, 5], 1)
 })
 
+
+test_that("negation", {
+  f1 <- function(x)
+  {
+    if(x > 0)
+      x-min(x)
+    else
+      -x+min(x)
+  }
+  
+  f2 <- function(x)
+  {
+    if(x <= 0)
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  f3 <- function(x)
+  {
+    if(!(x > 0))
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
