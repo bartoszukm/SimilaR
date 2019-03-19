@@ -990,8 +990,7 @@ void CDGMaker::makeStopIfNotNodesIfNecessary(SEXP s,
                                              bool isStopifnotCall
                                              )
 {
-    if(isSpecificFunction(s,
-                          "stopifnot") &&
+    if((isSpecificFunction(s, "stopifnot") || graphUtils::getCanonicalName(getLangName(s), variableName2variableName) == "stopifnot") &&
        !isSpecificFunction(CAR(t), "&&") && !isSpecificFunction(CAR(t), "&"))
     {
         createNodeForCallNode(s,returnValueVariableName, controlVertex,
@@ -1004,7 +1003,7 @@ void CDGMaker::makeStopIfNotNodesIfNecessary(SEXP s,
                           );
         g[flowVertex].color = color_stopifnot;
     }
-    if(isSpecificFunction(s, "stopifnot"))
+    if(isSpecificFunction(s, "stopifnot") || graphUtils::getCanonicalName(getLangName(s), variableName2variableName) == "stopifnot")
     {
         my_uses.clear();
         arguments.clear();
@@ -1374,7 +1373,6 @@ void CDGMaker::makeDplyrNode(SEXP s,
         }
     }
 
-
     if(isApplyFunction(s))
     {
         makeApplyNode(s, returnValueVariableName,
@@ -1398,7 +1396,6 @@ void CDGMaker::makeDplyrNode(SEXP s,
     else if(graphUtils::getCanonicalName(getLangName(s),
                            variableName2variableName) == "return")
     {
-
       if(TYPEOF(CAR(leftArgument)) == SYMSXP)
       {
           makeNameSymbolNode(CAR(leftArgument),
@@ -1416,6 +1413,130 @@ void CDGMaker::makeDplyrNode(SEXP s,
     {
         uses.insert(uses.end(), my_uses.begin(), my_uses.end());
     }
+}
+
+void CDGMaker::makeDplyrSymbolNode(SEXP s,
+                             string returnValueVariableName,
+                             const vertex_t& controlVertex,
+                             vertex_t& flowVertex,
+                             list<string>& uses,
+                             bool createNode,
+                             bool lastInstruction,
+                             bool isLeftAssign,
+                             bool isStopifnotCall,
+                             bool isLeftSideOfAssign
+)
+{
+  int usesAll = 0;
+  list<string> my_uses;
+  list<string> arguments;
+  int whichArgument = 0;
+  
+  SEXP leftArgument = CDR(s);
+  s = CAR(CDR(CDR(s)));
+  SEXP t = leftArgument;
+  
+  if(TYPEOF(CAR(t))==LANGSXP)
+  {
+    if(isSpecificFunction(s, "stopifnot") || graphUtils::getCanonicalName(getLangName(s), variableName2variableName) == "stopifnot")
+      stopifnotSEXP = s;
+    
+    size_t my_uses_size_before = my_uses.size();
+    makeCallNode(CAR(
+        t), returnValueVariableName,
+        controlVertex,
+        flowVertex, my_uses,
+        true,
+        isSpecificFunction(s,"return") && whichArgument == 1,
+        false,
+        isSpecificFunction(s,"stopifnot")||isStopifnotCall,
+        false
+    );
+    size_t my_uses_size_after = my_uses.size();
+    
+    auto it = my_uses.begin();
+    for(size_t i = 0; i < my_uses_size_before; ++i)
+      ++it;
+    
+    for(size_t i = my_uses_size_before; i < my_uses_size_after;
+    ++i)
+    {
+      arguments.push_back(*it);
+      ++it;
+    }
+    
+    makeStopIfNotNodesIfNecessary(s,t,returnValueVariableName,
+                                  controlVertex, flowVertex,
+                                  my_uses, uses, arguments,
+                                  lastInstruction, isLeftAssign,
+                                  isStopifnotCall);
+  }
+  else if(TYPEOF(CAR(t))==SYMSXP)
+  {
+    if(isSpecificFunction(s, "stopifnot") || graphUtils::getCanonicalName(getLangName(s), variableName2variableName) == "stopifnot")
+      stopifnotSEXP = s;
+    
+    my_uses.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(t))),
+                                                   variableName2variableName));
+    arguments.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(
+        t))),
+        variableName2variableName));
+    makeStopIfNotNodesIfNecessary(s,t,returnValueVariableName,
+                                  controlVertex, flowVertex,
+                                  my_uses, uses, arguments,
+                                  lastInstruction, isLeftAssign,
+                                  isStopifnotCall);
+  }
+  else
+  {
+    my_uses.push_back(constantToString(CAR(t)));
+    arguments.push_back(constantToString(CAR(t)));
+  }
+  usesAll++;
+  //za forem
+  
+  if(isApplyFunction(s))
+  {
+    makeApplyNode(s, returnValueVariableName,
+                  controlVertex, flowVertex, my_uses, createNode,
+                  lastInstruction,
+                  isLeftAssign,
+                  &my_uses);
+  }
+  else if(createNode &&
+          !isSpecificFunction(s,"stopifnot") &&
+          !(isStopifnotCall && isSpecificFunction(s, "&&")) && 
+          !isSpecificFunction(s, "return") && 
+          graphUtils::getCanonicalName(getLangName(s), variableName2variableName) != "return" &&
+          !(isStopifnotCall && graphUtils::getCanonicalName(getLangName(s), variableName2variableName) != "&&") && 
+          graphUtils::getCanonicalName(getLangName(s), variableName2variableName) != "stopifnot")
+  {
+    createNodeForCallNode(s,returnValueVariableName,
+                          controlVertex,flowVertex, my_uses, uses,
+                          lastInstruction,
+                          isLeftAssign, usesAll, arguments,
+                          isLeftSideOfAssign);
+  }
+  else if(graphUtils::getCanonicalName(getLangName(s),
+                                       variableName2variableName) == "return")
+  {
+    if(TYPEOF(CAR(leftArgument)) == SYMSXP)
+    {
+      makeNameSymbolNode(CAR(leftArgument),
+                         returnValueVariableName,controlVertex,flowVertex,
+                         true);
+    }
+    else if(TYPEOF(CAR(leftArgument)) != LANGSXP)
+    {
+      makeConstantNode(CAR(leftArgument), returnValueVariableName,
+                       controlVertex,flowVertex);
+    }
+    
+  }
+  else
+  {
+    uses.insert(uses.end(), my_uses.begin(), my_uses.end());
+  }
 }
 
 void CDGMaker::makeCallNode(SEXP s,
@@ -1512,6 +1633,17 @@ void CDGMaker::makeCallNode(SEXP s,
                                      isLeftAssign,
                                      isStopifnotCall,
                                      isLeftSideOfAssign);
+           }
+           else if(TYPEOF(CAR(CDR(CDR(s)))) == SYMSXP && graphUtils::getCanonicalName(getLangName(CAR(CDR(CDR(s)))),
+                          variableName2variableName) != "{")
+           {
+             makeDplyrSymbolNode(s, returnValueVariableName,
+                           controlVertex,
+                           flowVertex,
+                           uses, createNode, lastInstruction,
+                           isLeftAssign,
+                           isStopifnotCall,
+                           isLeftSideOfAssign);
            }
            else
            {

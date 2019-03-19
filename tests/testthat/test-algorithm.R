@@ -329,3 +329,203 @@ test_that("dead_code", {
   expect_equal(res[1, 5], 1)
 })
 
+
+test_that("magrittr1", {
+  f1 <- function(x)
+  {
+    sum(min(x), max(x))
+  }
+  
+  f2 <- function(x)
+  {
+    x %>% min() %>% sum(max(x))
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("magrittr2", {
+  f1 <- function(x)
+  {
+    sum(min(x), max(x))
+  }
+  
+  f2 <- function(x)
+  {
+    x %>% min %>% sum(max(x))
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("magrittr3", {
+  f1 <- function(x)
+  {
+     stopifnot(length(x) > 0, sum(x) > 0)
+     sum(min(x), max(x))
+  }
+  
+  f2 <- function(x)
+  {
+    (length(x) > 0) %>% stopifnot
+    stopifnot(sum(x) > 0)
+    x %>% min %>% sum(max(x))
+  }
+  
+  f3 <- function(x)
+  {
+    (length(x) > 0) %>% stopifnot()
+    stopifnot(sum(x) > 0)
+    x %>% min %>% sum(max(x))
+  }
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("stopifnot1", {
+  f1 <- function(x)
+  {
+    stopifnot(length(x) > 0, sum(x) > 0)
+    sum(min(x), max(x))
+  }
+  
+  f2 <- function(x)
+  {
+    stopifnot(length(x) > 0)
+    stopifnot(sum(x) > 0)
+    x %>% min %>% sum(max(x))
+  }
+  
+  f3 <- function(x)
+  {
+    stopifnot(length(x) > 0 && sum(x) > 0)
+    x %>% min %>% sum(max(x))
+  }
+  
+  f4 <- function(x)
+  {
+    stopifnot(length(x) > 0 & sum(x) > 0)
+    x %>% min %>% sum(max(x))
+  }
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f3, 
+                                  f4, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("magrittr4", {
+  f1 <- function(x)
+  {
+    a <- min(x)
+    y + 5+a
+    z <- 6-a
+    y-6+z
+  }
+  
+  f2 <- function(x)
+  {
+    a <- x %>% min
+    y + 5+a
+    z <- 6-a
+    y-6+z
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  res
+  
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("magrittr5", {
+  f1 <- function(x)
+  {
+    return(x-min(x))
+  }
+  
+  f2 <- function(x)
+  {
+    x-min(x)
+  }
+  
+  f3 <- function(x)
+  {
+    (x-min(x)) %>% return
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
