@@ -1570,6 +1570,12 @@ void CDGMaker::makeCallNode(SEXP s,
                                variableName2variableName) == "return" &&
            TYPEOF(CAR(CDR(s))) == SYMSXP)
         {
+          ; //zeby zadzialalo:
+          // y <- ...
+          // return(y)
+          //
+          // return(...)
+          // ostatecznie usuwam w post processingu
             makeNameSymbolNode(CAR(CDR(
                                        s)),
                                returnValueVariableName,controlVertex,flowVertex,

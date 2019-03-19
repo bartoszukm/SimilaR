@@ -33,6 +33,7 @@ GraphType PDGMaker::MakePDG(SEXP s,
         if(executeRemoveSingleInstructions) post.removeSingleInstructions(pdg);
         if(executeMergeTheSameInstructions) post.mergeTheSameInstructions(pdg);
         if(executeChangeWhileLoop) post.changeWhileLoop(pdg);
+        post.removeSymbolNodes(pdg);
         post.memoryClean(pdg);
         return pdg;
 }

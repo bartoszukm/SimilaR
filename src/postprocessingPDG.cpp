@@ -321,6 +321,36 @@ void PostprocessingPDG::mergeTheSameInstructions(GraphType& g)
     }
 }
 
+void PostprocessingPDG::removeSymbolNodes(GraphType& g)
+{
+  vector<vertex_t> toRemove;
+  graph_traits<GraphType>::vertex_iterator vi, vi_end, next;
+  tie(vi, vi_end) = vertices(g);
+  bool changes = true;
+  while(changes)
+  {
+    changes = false;
+    tie(vi, vi_end) = vertices(g);
+    for (next = vi; vi != vi_end; vi = next) {
+      ++next;
+      
+      if(g[*vi].lastInstruction && g[*vi].color == color_symbol)
+      {
+        changes = true;
+        toRemove.push_back(*vi);
+        break;
+      }
+    }
+    
+    for(size_t i=0;i<toRemove.size(); ++i)
+    {
+      clear_vertex(toRemove[i], g);
+      remove_vertex(toRemove[i], g);
+    }
+    toRemove.clear();
+  }
+}
+
 void PostprocessingPDG::memoryClean(GraphType& g)
 {
   GraphType::vertex_iterator it, itEnd;

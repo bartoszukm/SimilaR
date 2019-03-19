@@ -51,4 +51,5 @@ public:
     void removeSingleInstructions(GraphType& g);
     void mergeTheSameInstructions(GraphType& g);
     void memoryClean(GraphType& g);
+    void removeSymbolNodes(GraphType& g);
 };

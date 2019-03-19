@@ -529,3 +529,164 @@ test_that("magrittr5", {
   expect_equal(res[1, 4], 1)
   expect_equal(res[1, 5], 1)
 })
+
+test_that("return1", {
+  f1 <- function(x)
+  {
+    return(x-min(x))
+  }
+  
+  f2 <- function(x)
+  {
+    x-min(x)
+  }
+  
+  f3 <- function(x)
+  {
+    y <- x-min(x)
+    return(y)
+  }
+  
+  f4 <- function(x)
+  {
+    y <- x-min(x)
+    y
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f4, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("return2", {
+  f1 <- function(x)
+  {
+    if(x > 0)
+      return(x-min(x))
+    else
+      return(-x+min(x))
+  }
+  
+  f2 <- function(x)
+  {
+    if(x > 0)
+      x-min(x)
+    else
+      -x+min(x)
+  }
+  
+  f3 <- function(x)
+  {
+    if(x > 0)
+    {
+      y <- x-min(x)
+      return(y)
+    }
+    else
+    {
+      y <- -x+min(x)
+      return(y)
+    }
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("return3", {
+  f1 <- function(x)
+  {
+    x %>% min()
+  }
+  
+  f2 <- function(x)
+  {
+    min(x)
+  }
+  
+  f3 <- function(x)
+  {
+    y <- x
+    y %>% min
+  }
+  
+  f4 <- function(x)
+  {
+    y <- x+6
+    sum(y, 6)
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f4, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_lt(res[1, 3], 1)
+  expect_lt(res[1, 4], 1)
+  expect_lt(res[1, 5], 1)
+})
+
