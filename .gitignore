@@ -14,7 +14,8 @@ Rplots.pdf
 .Rproj.user/
 .Rhistory
 .RData
-DataStructures.Rcheck
+SimilaR.Rcheck
+*.Rproj
 
 # compiled/precompiled files
 *.o
