@@ -196,11 +196,12 @@ void makeCDG_rec_cpp_wrapper(SEXP s,
                                        vertex_t*> >
                              *structuredTransfersOfControl,
                              bool lastInstruction);
+
 public:
 CDGMaker() :
     global_CallNumber_startValue(0),
     global_CallNumber(global_CallNumber_startValue){
-}
+    }
 
 GraphType makeCDG_cpp(SEXP obj, vertex_t*& entry);   //zwracany do R graf to lista 3 rzeczy: macierz sasiedztwa, kolory i texty wierzcholkow
 };

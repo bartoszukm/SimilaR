@@ -691,7 +691,7 @@ test_that("return3", {
 })
 
 
-test_that("negation", {
+test_that("negation1", {
   f1 <- function(x)
   {
     if(x > 0)
@@ -736,5 +736,114 @@ test_that("negation", {
   expect_equal(res[1, 3], 1)
   expect_equal(res[1, 4], 1)
   expect_equal(res[1, 5], 1)
+})
+
+test_that("negation2", {
+  f1 <- function(x, y)
+  {
+    if(x > 0 && y < 0)
+      x-min(x)
+    else
+      -x+min(x)
+  }
+  
+  f2 <- function(x, y)
+  {
+    if(x <= 0 || y >= 0)
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  f3 <- function(x, y)
+  {
+    if(!(x > 0 && y < 0))
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  f4 <- function(x, y)
+  {
+    if(x <= 0 || !(y < 0))
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f4, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+test_that("negation3", {
+  f1 <- function(x, y)
+  {
+    if(x > 0 && y < 0)
+      x-min(x)
+    else
+      -x+min(x)
+  }
+  
+  f2 <- function(x, y)
+  {
+    if(x <= 0 || predykat(y))
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  f3 <- function(x, y)
+  {
+    if(x <= 0)
+      -x+min(x)
+    else
+      x-min(x)
+  }
+  
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_lt(res[1, 3], 1)
+  expect_lt(res[1, 4], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_lt(res[1, 3], 1)
+  expect_lt(res[1, 4], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_lt(res[1, 3], 1)
+  expect_lt(res[1, 4], 1)
+
 })
 

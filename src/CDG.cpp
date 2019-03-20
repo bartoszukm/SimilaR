@@ -1618,26 +1618,28 @@ void CDGMaker::makeCallNode(SEXP s,
     }
     else if(!strcmp(getLangName(s), "!"))
     {
-      if(!strcmp(getLangName(CAR(CDR(s))), "<=") || 
-         !strcmp(getLangName(CAR(CDR(s))), "<")  || 
-         !strcmp(getLangName(CAR(CDR(s))), ">=") || 
-         !strcmp(getLangName(CAR(CDR(s))), ">")  ||
-         !strcmp(getLangName(CAR(CDR(s))), "==")  ||
-         !strcmp(getLangName(CAR(CDR(s))), "!=") ||
-         (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), ">")) ||
-         (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), ">=")) ||
-         (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "<")) ||
-         (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "<=")) ||
-         (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "==")) ||
-         (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "!="))
-         )
-      {
-        makeCallNode(CAR(CDR(
-            s)),returnValueVariableName,
-            controlVertex, flowVertex,
-            uses, createNode, lastInstruction, isLeftAssign,
-            isStopifnotCall);
-      }
+      makeCallNode(CAR(CDR(
+          s)),returnValueVariableName,
+          controlVertex, flowVertex,
+          uses, createNode, lastInstruction, isLeftAssign,
+          isStopifnotCall);
+      
+      // if(!strcmp(getLangName(CAR(CDR(s))), "<=") || 
+      //    !strcmp(getLangName(CAR(CDR(s))), "<")  || 
+      //    !strcmp(getLangName(CAR(CDR(s))), ">=") || 
+      //    !strcmp(getLangName(CAR(CDR(s))), ">")  ||
+      //    !strcmp(getLangName(CAR(CDR(s))), "==")  ||
+      //    !strcmp(getLangName(CAR(CDR(s))), "!=") ||
+      //    (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), ">")) ||
+      //    (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), ">=")) ||
+      //    (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "<")) ||
+      //    (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "<=")) ||
+      //    (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "==")) ||
+      //    (!strcmp(getLangName(CAR(CDR(s))), "(")  && !strcmp(getLangName(CAR(CDR(CAR(CDR(s))))), "!="))
+      //    )
+      // {
+      //   
+      // }
     }
     else
     {
