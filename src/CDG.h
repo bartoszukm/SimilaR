@@ -197,6 +197,9 @@ void makeCDG_rec_cpp_wrapper(SEXP s,
                              *structuredTransfersOfControl,
                              bool lastInstruction);
 
+bool isReturnBranch(SEXP s, int& branchSize);
+int makeLexicalComparison(SEXP s1, SEXP s2);
+
 public:
 CDGMaker() :
     global_CallNumber_startValue(0),

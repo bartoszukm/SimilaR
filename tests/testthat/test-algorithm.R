@@ -894,3 +894,428 @@ test_that("negation4", {
   
 })
 
+
+test_that("ifs1", {
+  f0 <- function(x)
+  {
+    if(x >= 0)
+      x
+     else 
+       -x
+  }
+  
+  f1 <- function(x)
+  {
+    if(x >= 0)
+      return(x)
+    else
+      return(-x)
+  }
+  
+  f2 <- function(x)
+  {
+    if(x >= 0)
+      return(x)
+    return(-x)
+  }
+  
+  f3 <- function(x)
+  {
+    if(x >= 0)
+      return(x)
+    -x
+  }
+  
+  funs <- list(f0, f1, f2, f3)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(res[, 3], rep(1, nrow(res)))
+  expect_equal(res[, 4], rep(1, nrow(res)))
+  expect_equal(res[, 5], rep(1, nrow(res)))
+  
+#   fun_text1 <- "f0 <- function(x)
+#   {
+#   if(x >= 0)
+#   x
+#   else
+#   -x
+# }"
+# 
+#   fun_text2 <- "f3 <- function(x)
+#   {
+#   if(x >= 0)
+#   return(x)
+#   else
+#   return(-x)
+#   }"
+# 
+#   fun_text3 <- "f2 <- function(x)
+#   {
+#   if(x<0)
+#   {
+#     a <- f(x, h(x))
+#     g(a)
+#   }
+#   else
+#   {
+#     for(i in 1:5)
+#     {
+#       print(i)
+#       print(i)
+#     }
+#   }
+#   }"
+# 
+# 
+#   SimilaR::SimilaR_drawGraph(fun_text1)
+#   SimilaR::SimilaR_drawGraph(fun_text2)
+#   SimilaR::SimilaR_drawGraph(fun_text3)
+# 
+#   fun_tree1 <- parse(text=fun_text1)
+#   AST <- fun_tree1[[1]]
+#   g1 <- createGraphFromMatrix(makePDG_cpp(AST,FALSE,TRUE))
+#   plot(g1)
+})
+
+test_that("ifs2", {
+  f1 <- function(x, y)
+  {
+    if(y < 0)
+    {
+      if(x < 0)
+        return(-x)
+      else
+        return(x)
+    }
+    else
+      return(y)
+  }
+  
+  f2 <- function(x, y)
+  {
+    if(y < 0)
+    {
+      return(y)  
+    }
+    
+    if(x < 0)
+      return(-x)
+    else
+      return(x)
+  }
+  
+  f3 <- function(x, y)
+  {
+    if(y < 0)
+    {
+      return(y)
+      
+    }
+    if(x >= 0)
+      return(x)
+    return(-x)
+    
+  }
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f2, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f3, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+})
+
+test_that("ifs3", {
+  f0 <- function(x)
+  {
+    if(warunek1(x))
+      return(f(x))
+    
+    if(warunek2(x))
+      return(x-2)
+    
+    return(x+3)
+  }
+  
+  f1 <- function(x)
+  {
+    if(warunek2(x))
+      return(x-2)
+    
+    if(warunek1(x))
+      return(f(x))
+    
+    return(x+3)
+  }
+  
+  f2 <- function(x)
+  {
+    if(warunek2(x))
+      return(x-2)
+    else
+    {
+      if(warunek1(x))
+        return(f(x))
+      else
+        return(x+3)
+    }
+    
+  }
+  
+  f3 <- function(x)
+  {
+    if(!warunek2(x))
+    {
+      if(warunek1(x))
+        return(f(x))
+      else
+        return(x+3)
+    }
+    else
+    {
+      return(x-2)
+    }
+  }
+  
+  f4 <- function(x)
+  {
+    if(!warunek2(x))
+    {
+      if(warunek1(x))
+        f(x)
+      else
+        x+3
+    }
+    else
+    {
+      x-2
+    }
+  }
+  
+  funs <- list(f0, f1, f2, f3, f4)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(res[, 3], rep(1, nrow(res)))
+  expect_equal(res[, 4], rep(1, nrow(res)))
+  expect_equal(res[, 5], rep(1, nrow(res)))
+})
+
+test_that("ifs4", {
+  f0 <- function(x)
+  {
+    if(warunek1(x))
+      stop("asd")
+    
+    if(warunek2(x))
+      stop("dsa")
+    
+    return(x+3)
+  }
+  
+  f1 <- function(x)
+  {
+    if(warunek2(x))
+      stop("dsa")
+    
+    if(warunek1(x))
+      stop("asd")
+    
+    return(x+3)
+  }
+  
+  f2 <- function(x)
+  {
+    if(warunek2(x))
+      stop("dsa")
+    else
+    {
+      if(warunek1(x))
+        stop("asd")
+      else
+        return(x+3)
+    }
+    
+  }
+  
+  f3 <- function(x)
+  {
+    if(!warunek2(x))
+    {
+      if(warunek1(x))
+        stop("asd")
+      else
+        return(x+3)
+    }
+    else
+    {
+      stop("dsa")
+    }
+  }
+  
+  funs <- list(f0, f1, f2, f3)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(res[, 3], rep(1, nrow(res)))
+  expect_equal(res[, 4], rep(1, nrow(res)))
+  expect_equal(res[, 5], rep(1, nrow(res)))
+})
+
+test_that("ifs5", {
+  f0 <- function(x)
+  {
+    if(warunek1(x))
+      print("asd")
+    
+    if(warunek2(x))
+      print("dsa")
+    
+    return(x+3)
+  }
+  
+  f1 <- function(x)
+  {
+    if(warunek2(x))
+      print("dsa")
+    
+    if(warunek1(x))
+      print("asd")
+    
+    return(x+3)
+  }
+  
+  f2 <- function(x)
+  {
+    if(warunek2(x))
+      print("dsa")
+    else
+    {
+      if(warunek1(x))
+        print("asd")
+      else
+        return(x+3)
+    }
+    
+  }
+  
+  f3 <- function(x)
+  {
+    if(!warunek2(x))
+    {
+      if(warunek1(x))
+        print("asd")
+      else
+        return(x+3)
+    }
+    else
+    {
+      print("dsa")
+    }
+  }
+  
+  funs <- list(f0, f1, f2, f3)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(sum(res[2:5, 3]< rep(1, nrow(res)-2)), length(rep(1, nrow(res)-2)))
+  expect_equal(sum(res[2:5, 4]< rep(1, nrow(res)-2)), length(rep(1, nrow(res)-2)))
+  expect_equal(sum(res[2:5, 5]< rep(1, nrow(res)-2)), length(rep(1, nrow(res)-2)))
+})
+
+# test_that("loops1", {
+#   f1 <- function(x)
+#   {
+#     ret <- lapply(x, fun, ...)
+#     return(ret)
+#   }
+#   
+#   f2 <- function(x)
+#   {
+#     ret <- vector("list", length(x))
+#     for (i in 1:length(x))
+#       ret[[i]] <- fun(x[[i]], ...)
+#     return(ret)
+#   }
+#   
+#   f3 <- function(x)
+#   {
+#     ret <- list()
+#     for (el in x) 
+#       ret[[length(ret)+1]] <- fun(el, ...)
+#     return(ret)
+#   }
+#   
+#   res <- SimilaR_fromTwoFunctions(f1, 
+#                                   f2, returnType = "data.frame", aggregation = "both")
+#   expect_true(is.data.frame(res))
+#   expect_equal(res[1, 3], 1)
+#   expect_equal(res[1, 4], 1)
+#   expect_equal(res[1, 5], 1)
+#   
+#   res <- SimilaR_fromTwoFunctions(f2, 
+#                                   f3, returnType = "data.frame", aggregation = "both")
+#   expect_true(is.data.frame(res))
+#   expect_lt(res[1, 3], 1)
+#   expect_lt(res[1, 4], 1)
+#   
+#   res <- SimilaR_fromTwoFunctions(f1, 
+#                                   f3, returnType = "data.frame", aggregation = "both")
+#   expect_true(is.data.frame(res))
+#   expect_lt(res[1, 3], 1)
+#   expect_lt(res[1, 4], 1)
+#   
+# })
+# 

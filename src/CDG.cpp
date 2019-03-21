@@ -26,6 +26,81 @@ using namespace Rcpp;
 using namespace std;
 using namespace boost;
 
+void typeOfVertex(SEXP s)
+{
+  if(TYPEOF(s) == SYMSXP)
+    Rcout << "SYMSXP" << endl;
+  else if(TYPEOF(s) == LANGSXP)
+    Rcout << "LANGSXP" << endl;
+  else if(TYPEOF(s) == LISTSXP)
+    Rcout << "LISTSXP" << endl;
+  else
+    Rcout << "other" << endl;
+}
+
+int CDGMaker::makeLexicalComparison(SEXP s1, SEXP s2)
+{
+  Environment ns = Environment::namespace_env("SimilaR");
+  Rcpp::Function myprint(ns["myprint"]);
+  string ss1 = string(as<CharacterVector>(myprint(s1))[0]);
+  string ss2 = string(as<CharacterVector>(myprint(s2))[0]);
+  // Rcout << ss1 << ", " << ss2 << endl;
+  return strcmp(ss1.c_str(), ss2.c_str());
+}
+
+bool CDGMaker::isReturnBranch(SEXP s, int& branchSize)
+{
+  // Rcout << "isReturnBranch()" << endl;
+  int myBranchSize = 0;
+  if (s == R_NilValue) {
+    branchSize = 0;
+    return false;
+  }
+  
+  if(TYPEOF(CAR(s))==LANGSXP && !strcmp(getLangName(CAR(s)), "{"))
+  {
+    // Rcout << "klamra" << endl;
+    s = CDR(CAR(s));
+  }
+  
+  for(SEXP s1 = s; s1 != R_NilValue; s1 = TYPEOF(s)==LISTSXP ? CDR(s1) : R_NilValue)
+  {
+    // Rcout << "for iteration" << endl;
+    myBranchSize++;
+    
+    // Rcout << "s1"<<endl;
+    // typeOfVertex(s1);
+    SEXP s2 = s1;
+    
+    if(TYPEOF(s) != SYMSXP && TYPEOF(s) != LANGSXP)
+     s2 = CAR(s1);
+    
+    // Rcout << "s2"<<endl;
+    // typeOfVertex(s2);
+    
+    //Rcout << graphUtils::getCanonicalName(getLangName(s2), variableName2variableName) << endl;
+    if(TYPEOF(s2)==LANGSXP && (graphUtils::getCanonicalName(getLangName(s2), variableName2variableName) == "return" || graphUtils::getCanonicalName(getLangName(s2), variableName2variableName) == "stop") )
+    {
+      // Rcout << "wykryto returna" << endl;
+      int theyBranchSize = 0;
+      isReturnBranch(CDR(s2), theyBranchSize);
+      myBranchSize += theyBranchSize;
+      branchSize += myBranchSize;
+      
+      return true;
+    }
+    
+    if(TYPEOF(s2) == LANGSXP)
+    {
+      int theyBranchSize = 0;
+      isReturnBranch(CDR(s2), theyBranchSize);
+      myBranchSize += theyBranchSize;
+    }
+  }
+  branchSize += myBranchSize;
+  return false;
+}
+
 string CDGMaker::constantToString(SEXP s)
 {
     if (TYPEOF(s) ==  LGLSXP)
@@ -364,7 +439,108 @@ void CDGMaker::makeIfNode(SEXP s,
     vertex_t node;
     vertex_t oldControlVertex = controlVertex;
     std::pair<edge_t, bool>  e;
-
+    
+    bool ifExists = true;
+    
+    for(SEXP s1 = s; s1 != R_NilValue; s1 = CDR(s1))
+    {
+      index++;
+    }
+    // Rcout << "index: " << index << endl;
+    bool elseExists = index == 4;
+    bool isIfReturnBranch = false;
+    bool isElseReturnBranch = false;
+    int branchSizeIf = 0;
+    int branchSizeElse = 0;
+    
+    bool remember_if = false;
+    
+    // Rcout << "elseExists: " << elseExists << endl;
+    // Rcout << "lastInstruction: " << lastInstruction << endl;
+    
+    SEXP if_child;
+    SEXP else_child;
+    
+    
+    if(elseExists)
+    {
+      index = 0;
+      for(SEXP s1 = s; s1 != R_NilValue; s1 = CDR(s1))
+      {
+        if(index == 2)
+        {
+          if(TYPEOF(CAR(s1))==LANGSXP)
+          {
+            if (TYPEOF(PRINTNAME(CAR(CAR(s1)))) == CHARSXP && !strcmp(CHAR(PRINTNAME(CAR(CAR(s1)))), "{"))
+            {
+              klamra_if = true;
+            }
+          }
+          
+          if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
+          {
+            // Rcout << "Prosty przypadek" << endl;
+            branchSizeIf = 1;
+            isIfReturnBranch = lastInstruction;
+            if_child = s1;
+          }
+          else
+          {
+            // Rcout << "Zaawansowany przypadek" << endl;
+            SEXP child = klamra_if ? s1 : ((TYPEOF(s1)==SYMSXP || TYPEOF(s1)==LANGSXP || TYPEOF(s1)==LISTSXP) ? (TYPEOF(CAR(s1))==SYMSXP || TYPEOF(CAR(s1)) == LANGSXP ? CAR(s1) : s1) : s1);
+            if_child = child;
+            if(isReturnBranch(child, branchSizeIf))
+            {
+              isIfReturnBranch = true;
+            }
+          }
+        }
+        else if(index == 3)
+        {
+          if(TYPEOF(CAR(s1))==LANGSXP)
+          {
+            if (TYPEOF(PRINTNAME(CAR(CAR(s1)))) == CHARSXP && !strcmp(CHAR(PRINTNAME(CAR(CAR(s1)))), "{"))
+            {
+              klamra_else = true;
+            }
+          }
+          if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
+          {
+            // Rcout << "Prosty przypadek" << endl;
+            branchSizeIf = 1;
+            isElseReturnBranch = lastInstruction;
+            else_child = s1;
+          }
+          else
+          {
+            // Rcout << "Zaawansowany przypadek" << endl;
+            SEXP child = klamra_else ? s1 : ((TYPEOF(s1)==SYMSXP || TYPEOF(s1)==LANGSXP || TYPEOF(s1)==LISTSXP) ? (TYPEOF(CAR(s1))==SYMSXP || TYPEOF(CAR(s1)) == LANGSXP ? CAR(s1) : s1) : s1);
+            else_child = child;
+            if(isReturnBranch(child, branchSizeElse))
+            {
+              isElseReturnBranch = true;
+            }
+          }
+        }
+        index++;
+      }
+      if(lastInstruction)
+      {
+        isIfReturnBranch = true;
+        isElseReturnBranch = true;
+      }
+    }
+    
+    // Rcout << "isIfReturnBranch: " << isIfReturnBranch << endl;
+    // Rcout << "isElseReturnBranch: " << isElseReturnBranch << endl;
+    // Rcout << "branchSizeIf: " << branchSizeIf << endl;
+    // Rcout << "branchSizeElse: " << branchSizeElse << endl;
+    if(isIfReturnBranch && isElseReturnBranch && branchSizeIf == branchSizeElse)
+    {
+      branchSizeIf += makeLexicalComparison(if_child, else_child);
+    }
+    
+    index = 0;
     for(SEXP s1 = s; s1 != R_NilValue; s1 = CDR(s1))
     {
         if(index==0)
@@ -414,58 +590,50 @@ void CDGMaker::makeIfNode(SEXP s,
                 }
             }
 
-            vertex_t node2 = boost::add_vertex(g);
-            g[node2].color = color_if_part;
-            g[node2].name = "if_part";
-            g[node2].lastInstruction = lastInstruction;
-            g[node2].isLeftSideOfAssign = false;
-
-            e = add_edge(node, node2, g);
-            g[e.first].color = color_control_dependency;
-
-            e = add_edge(node, node2, g);
-            g[e.first].color = color_control_flow;
-            g[node2].uses = uses;
-
-            flowVertex = node2;
-            vertex_t* pnode = new vertex_t;
-            *pnode = node2;
-
-
-            if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
+            if((!isIfReturnBranch && !isElseReturnBranch) || (isIfReturnBranch && !isElseReturnBranch) || (isIfReturnBranch && isElseReturnBranch && branchSizeIf < branchSizeElse))
             {
-                makeConstantNode(CAR(
-                                     s1),
-                                 returnValueVariableName,node,flowVertex);
+              // Rcout << "Tworze ifpart" << endl;
+              
+              vertex_t node2 = boost::add_vertex(g);
+              g[node2].color = color_if_part;
+              g[node2].name = "if_part";
+              g[node2].lastInstruction = lastInstruction;
+              g[node2].isLeftSideOfAssign = false;
+  
+              e = add_edge(node, node2, g);
+              g[e.first].color = color_control_dependency;
+  
+              e = add_edge(node, node2, g);
+              g[e.first].color = color_control_flow;
+              g[node2].uses = uses;
+  
+              flowVertex = node2;
+              vertex_t* pnode = new vertex_t;
+              *pnode = node2;
+
+
+              if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
+              {
+                  makeConstantNode(CAR(s1),returnValueVariableName,node2,flowVertex);
+              }
+              else
+              {
+                
+                
+                  makeCDG_rec_cpp_wrapper(klamra_if ? s1 : ((TYPEOF(s1)==SYMSXP || TYPEOF(s1)==LANGSXP || TYPEOF(s1)==LISTSXP) ? (TYPEOF(CAR(s1))==SYMSXP || TYPEOF(CAR(s1)) == LANGSXP ? CAR(s1) : s1) : s1), 
+                                          returnValueVariableName,node2,
+                                          flowVertex, pnode,
+                                          structuredTransfersOfControl,
+                                          lastInstruction);
+              }
+              e = add_edge(flowVertex, node, g);
+              g[e.first].color = color_control_flow;
+              flowVertex = node;
             }
             else
-                makeCDG_rec_cpp_wrapper(klamra_if ? s1 : ((TYPEOF(s1)==
-                                                           SYMSXP ||
-                                                           TYPEOF(s1)==
-                                                           LANGSXP ||
-                                                           TYPEOF(s1)==
-                                                           LISTSXP) ? (TYPEOF(
-                                                                           CAR(
-                                                                               s1))
-                                                                       ==
-                                                                       SYMSXP
-                                                                       ||
-                                                                       TYPEOF(
-                                                                           CAR(
-                                                                               s1))
-                                                                       ==
-                                                                       LANGSXP
-                                                                       ? CAR(
-                                                                           s1)
-                                                                       : s1) :
-                                                          s1),
-                                        returnValueVariableName,node2,
-                                        flowVertex, pnode,
-                                        structuredTransfersOfControl,
-                                        lastInstruction);
-            e = add_edge(flowVertex, node, g);
-            g[e.first].color = color_control_flow;
-            flowVertex = node;
+            {
+              remember_if = true;
+            }
         }
         else if(index == 3)
         {
@@ -479,60 +647,80 @@ void CDGMaker::makeIfNode(SEXP s,
                 }
             }
 
-            vertex_t node2 = boost::add_vertex(g);
-            g[node2].color = color_if_part;
-            g[node2].name = "else_part";
-            g[node2].lastInstruction = lastInstruction;
-            g[node2].isLeftSideOfAssign = false;
-
-            e = add_edge(node, node2, g);
-            g[e.first].color = color_control_dependency;
-
-            e = add_edge(node, node2, g);
-            g[e.first].color = color_control_flow;
-            g[node2].uses = uses;
-
-            flowVertex = node2;
-            vertex_t* pnode = new vertex_t;
-            *pnode = node2;
-
-            if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
+            if((!isIfReturnBranch && !isElseReturnBranch) || (!isIfReturnBranch && isElseReturnBranch) || (isIfReturnBranch && isElseReturnBranch && branchSizeElse <= branchSizeIf)) // zamiast <= to zrobic porzadek liniowy porzadny!!!
             {
-                makeConstantNode(CAR(
-                                     s1),
-                                 returnValueVariableName,node,flowVertex);
+              // Rcout << "Tworze ifpart" << endl;
+              vertex_t node2 = boost::add_vertex(g);
+              g[node2].color = color_if_part;
+              g[node2].name = "else_part";
+              g[node2].lastInstruction = lastInstruction;
+              g[node2].isLeftSideOfAssign = false;
+  
+              e = add_edge(node, node2, g);
+              g[e.first].color = color_control_dependency;
+  
+              e = add_edge(node, node2, g);
+              g[e.first].color = color_control_flow;
+              g[node2].uses = uses;
+  
+              flowVertex = node2;
+              vertex_t* pnode = new vertex_t;
+              *pnode = node2;
+  
+              if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
+              {
+                  makeConstantNode(CAR(s1),returnValueVariableName,node2,flowVertex);
+              }
+              else
+                  makeCDG_rec_cpp_wrapper(klamra_else ? s1 : ((TYPEOF(s1)==
+                                                               SYMSXP ||
+                                                               TYPEOF(s1)==
+                                                               LANGSXP ||
+                                                               TYPEOF(s1)==
+                                                               LISTSXP) ? (TYPEOF(
+                                                                               CAR(
+                                                                                   s1))
+                                                                           ==
+                                                                           SYMSXP
+                                                                           ||
+                                                                           TYPEOF(
+                                                                               CAR(
+                                                                                   s1))
+                                                                           ==
+                                                                           LANGSXP
+                                                                           ? CAR(
+                                                                               s1)
+                                                                           : s1)
+                                                              : s1),
+                                          returnValueVariableName,node2,
+                                          flowVertex, pnode,
+                                          structuredTransfersOfControl,
+                                          lastInstruction);
+              e = add_edge(flowVertex, node, g);
+              g[e.first].color = color_control_flow;
+              flowVertex = node;
             }
             else
-                makeCDG_rec_cpp_wrapper(klamra_else ? s1 : ((TYPEOF(s1)==
-                                                             SYMSXP ||
-                                                             TYPEOF(s1)==
-                                                             LANGSXP ||
-                                                             TYPEOF(s1)==
-                                                             LISTSXP) ? (TYPEOF(
-                                                                             CAR(
-                                                                                 s1))
-                                                                         ==
-                                                                         SYMSXP
-                                                                         ||
-                                                                         TYPEOF(
-                                                                             CAR(
-                                                                                 s1))
-                                                                         ==
-                                                                         LANGSXP
-                                                                         ? CAR(
-                                                                             s1)
-                                                                         : s1)
-                                                            : s1),
-                                        returnValueVariableName,node2,
-                                        flowVertex, pnode,
-                                        structuredTransfersOfControl,
-                                        lastInstruction);
-            e = add_edge(flowVertex, node, g);
-            g[e.first].color = color_control_flow;
-            flowVertex = node;
+            {
+              makeCDG_rec_cpp_wrapper(klamra_else ? s1 : ((TYPEOF(s1)==SYMSXP || TYPEOF(s1)==LANGSXP || TYPEOF(s1)==LISTSXP) ? (TYPEOF(CAR(s1))==SYMSXP || TYPEOF(CAR(s1)) == LANGSXP ? CAR(s1) : s1) : s1), 
+                                      returnValueVariableName,controlVertex,
+                                      flowVertex, NULL,
+                                      NULL,
+                                      lastInstruction);
+            }
 
         }
         index++;
+    }
+    
+    if(remember_if)
+    {
+      // Rcout << "generuje pozostalego ifa" << endl;
+      makeCDG_rec_cpp_wrapper(if_child, 
+                              returnValueVariableName,controlVertex,
+                              flowVertex, NULL,
+                              NULL,
+                              lastInstruction);
     }
 }
 
