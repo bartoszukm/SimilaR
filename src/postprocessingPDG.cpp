@@ -225,14 +225,16 @@ void PostprocessingPDG::mergeTheSameInstructions(GraphType& g)
         tie(vi, vi_end) = vertices(g);
         for (next = vi; vi != vi_end && !changes; vi = next) {
             ++next;
-            if(g[*vi].color == color_functionZeroArgument || g[*vi].color ==
-               color_functionOneArgument
-               || g[*vi].color == color_functionTwoArguments || g[*vi].color ==
-               color_functionThreeArguments
-               || g[*vi].color == color_functionFourOrMoreArguments ||
-               g[*vi].color == color_oneBracketSingle
-               || g[*vi].color == color_oneBracketDouble || g[*vi].color ==
-               color_twoBrackets)
+            if(g[*vi].color == color_functionZeroArgument || 
+              g[*vi].color == color_functionOneArgument ||
+              g[*vi].color == color_functionTwoArguments || 
+              g[*vi].color == color_functionThreeArguments ||
+              g[*vi].color == color_functionFourOrMoreArguments ||
+              g[*vi].color == color_oneBracketSingle || 
+              g[*vi].color == color_oneBracketDouble || 
+              g[*vi].color == color_twoBrackets ||
+              g[*vi].color == color_arithmeticOperator ||
+              g[*vi].color == color_logicalOperator)
             {
                 tie(vi2, vi_end2) = vertices(g);
                 vi2 = vi;
