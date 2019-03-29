@@ -884,6 +884,8 @@ void CDGMaker::makeApplyNode(SEXP s,
     list<string> my_uses;
     if(additional_uses != nullptr)
       my_uses = *additional_uses;
+    string vector_name;
+    int argument_index = 0;
     for (SEXP t = CDR(s); t != R_NilValue; t = CDR(t))
     {
         if(isSpecificFunction(CAR(t),"function"))
@@ -892,21 +894,27 @@ void CDGMaker::makeApplyNode(SEXP s,
         }
         if(TYPEOF(CAR(t))==LANGSXP)
         {
-            size_t my_uses_size_before = uses.size();
+            size_t my_uses_size_before = my_uses.size();
             makeCallNode(CAR(
                              t), returnValueVariableName,
                          controlVertex, flowVertex,
                          my_uses, true, false,false, false, false);
-            size_t my_uses_size_after = uses.size();
+            size_t my_uses_size_after = my_uses.size();
 
-            auto it = uses.begin();
+            auto it = my_uses.begin();
             for(size_t i = 0; i < my_uses_size_before; ++i)
                 ++it;
-
+            // Rcout << "my_uses_size_before = " << my_uses_size_before << endl;
+            // Rcout << "my_uses_size_after = " << my_uses_size_after << endl;
+            int my_uses_index = 0;
             for(size_t i = my_uses_size_before; i < my_uses_size_after; ++i)
             {
-                arguments.push_back(*it);
-                ++it;
+              if(argument_index==0 && my_uses_index==0)
+                vector_name = *it;
+              
+              arguments.push_back(*it);
+              ++it;
+              my_uses_index++;
             }
         }
         else if(TYPEOF(CAR(t))==SYMSXP)
@@ -916,22 +924,124 @@ void CDGMaker::makeApplyNode(SEXP s,
                                                   variableName2variableName));
             arguments.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(t))),
                                                     variableName2variableName));
+            if(argument_index==0)
+              vector_name = graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(t))),
+                                                         variableName2variableName);
         }
         else
         {
             my_uses.push_back(constantToString(CAR(t)));
             arguments.push_back(constantToString(CAR(t)));
+            if(argument_index==0)
+              vector_name = constantToString(CAR(t));
         }
-
+        argument_index++;
     }
+    
+    // sztuczne wierzchoki (tworzenie wektora), wyciagnac do osobnej funkcji
+    // obliczam length(x)
+    string functionName_length = string("length_")+std::to_string(global_CallNumber++);
+    list<string> length_uses, length_arguments;
+    length_uses.push_back(vector_name);
+    length_arguments.push_back(vector_name);
+    vertex_t node_length;
+    node_length = boost::add_vertex(g);
+    g[node_length].color = color_functionZeroArgument;
+    g[node_length].name = string("length()")+std::to_string(global_CallNumber++);
+    g[node_length].uses = length_uses;
+    g[node_length].lastInstruction = false;
+    g[node_length].gen = functionName_length;
+    g[node_length].functionName = "length";
+    g[node_length].originalFunctionName = "length";
+    g[node_length].arguments = length_arguments;
+    g[node_length].isLeftSideOfAssign = false;
+    g[node_length].isLeftAssign = false;
+    
+    std::pair<edge_t, bool> e = add_edge(flowVertex, node_length, g);
+    g[e.first].color = color_control_flow;
+    
+    e = add_edge(controlVertex, node_length, g);
+    g[e.first].color = color_control_dependency;
+    flowVertex = node_length;
+    
+    // Rcout << "length od " << vector_name << endl;
+    
+    // vector(\"list\", length(x))
+    
+    list<string> vector_uses, vector_arguments;
+    vector_uses.push_back("list");
+    vector_uses.push_back(functionName_length);
+    vector_arguments.push_back("list");
+    vector_arguments.push_back(functionName_length);
+    string functionName_vector = string("vector_")+concatenateStringList(vector_uses)+string("_")+std::to_string(global_CallNumber++);
+    vertex_t node_vector;
+    node_vector = boost::add_vertex(g);
+    g[node_vector].color = color_functionOneArgument;
+    g[node_vector].name = string("vector()")+std::to_string(global_CallNumber++);
+    g[node_vector].uses = vector_uses;
+    g[node_vector].lastInstruction = false;
+    g[node_vector].gen = functionName_vector; // TUTAJ MUSI BYC TO, CO ZWRACA APPLY!!! // czy aby na pewno? chyba jednak nie, apply jak for generuje zmienna iterujaca
+    g[node_vector].functionName = "vector";
+    g[node_vector].originalFunctionName = "vector";
+    g[node_vector].arguments = vector_arguments;
+    g[node_vector].isLeftSideOfAssign = false;
+    g[node_vector].isLeftAssign = false;
+    
+    e = add_edge(flowVertex, node_vector, g);
+    g[e.first].color = color_control_flow;
+    
+    e = add_edge(controlVertex, node_vector, g);
+    g[e.first].color = color_control_dependency;
+    flowVertex = node_vector;
+    
+    // 1:length(x)
+    
+    list<string> colon_uses, colon_arguments;
+    colon_uses.push_back("1");
+    colon_uses.push_back(functionName_length);
+    colon_arguments.push_back("1");
+    colon_arguments.push_back(functionName_length);
+    string functionName_colon = string("colon_")+concatenateStringList(colon_uses)+string("_")+std::to_string(global_CallNumber++);
+    vertex_t node_colon;
+    node_colon = boost::add_vertex(g);
+    g[node_colon].color = color_colon;
+    g[node_colon].name = string(":()")+std::to_string(global_CallNumber++);
+    g[node_colon].uses = colon_uses;
+    g[node_colon].lastInstruction = false;
+    g[node_colon].gen = functionName_colon; 
+    g[node_colon].functionName = "colon";
+    g[node_colon].originalFunctionName = "colon";
+    g[node_colon].arguments = colon_arguments;
+    g[node_colon].isLeftSideOfAssign = false;
+    g[node_colon].isLeftAssign = false;
+    
+    e = add_edge(flowVertex, node_colon, g);
+    g[e.first].color = color_control_flow;
+    
+    e = add_edge(controlVertex, node_colon, g);
+    g[e.first].color = color_control_dependency;
+    flowVertex = node_colon;
+    
+    my_uses.push_back(g[node_colon].gen);
+    
+    // koniec sztucznych wierzcholkow
+    
 
     vertex_t node;
     node = boost::add_vertex(g);
     g[node].color = color_header;
     g[node].name = "apply";
     g[node].isLeftSideOfAssign = false;
+    string functionName = concatenateStringList(my_uses);
+    functionName = getLangName(s) + functionName;
+    uses.push_back(graphUtils::getCanonicalName(functionName,variableName2variableName));
+    if(isLeftAssign)
+    {
+      functionName = returnValueVariableName;
+    }
+    g[node].gen = functionName;
 
-    std::pair<edge_t, bool>  e = add_edge(oldControlVertex, node, g);
+    e = add_edge(oldControlVertex, node, g);
     g[e.first].color = color_control_dependency;
 
 
@@ -946,23 +1056,156 @@ void CDGMaker::makeApplyNode(SEXP s,
         {
             flowVertex = node;
             entry = &node;
+            
+            size_t vertices_count_before = num_vertices(g);
+            
             makeCDGfromFunction(CAR(
                                     t), entry,
                                 returnValueVariableName, flowVertex);
             g[node].functionPosition = functionIndex;
+            
+            size_t vertices_count_after = num_vertices(g);
+            list<string>::iterator it_argument = arguments.begin();
+            
+            for(size_t i=vertices_count_before; i<vertices_count_after; ++i)
+            {
+              // Rcout << g[i].name << endl;
+              // Rcout << g[i].functionName << endl;
+              
+              if(g[i].color == color_parameter)
+              {
+                //  stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
+                list<string> bracket_uses, bracket_arguments;
+                string argument_name = *it_argument;
+                bracket_uses.push_back(g[node].gen); // zmienna iterujaca
+                bracket_uses.push_back(argument_name); //wektor z ktorego bierzemy
+                bracket_arguments.push_back(g[node].gen);
+                bracket_arguments.push_back(argument_name);
+                string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(global_CallNumber++);
+                vertex_t node_bracket;
+                node_bracket = boost::add_vertex(g);
+                g[node_bracket].color = color_twoBrackets;
+                g[node_bracket].name = string("[[()")+std::to_string(global_CallNumber++);
+                g[node_bracket].uses = bracket_uses;
+                g[node_bracket].lastInstruction = false;
+                g[node_bracket].gen = functionName_bracket; 
+                g[node_bracket].functionName = "[[";
+                g[node_bracket].originalFunctionName = "[[";
+                g[node_bracket].arguments = bracket_arguments;
+                g[node_bracket].isLeftSideOfAssign = false;
+                g[node_bracket].isLeftAssign = false;
+                
+                e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
+                g[e.first].color = color_control_flow;
+                
+                e = add_edge(node, node_bracket, g);
+                g[e.first].color = color_control_dependency;
+                flowVertex = node_bracket;
+                
+                ++it_argument;
+                
+                for(size_t j=i+1; j<vertices_count_after; ++j)
+                {
+                  std::replace (
+                      g[j].uses.begin(),
+                      g[j].uses.end(), g[i].gen, g[node_bracket].gen);
+                }
+              }
+              
+              if(g[i].lastInstruction)
+              {
+                // to co generuje wierzcholek dajemy do sztucznie utworzonego przypisania z [[]]  
+                list<string> bracket_uses, bracket_arguments;
+                bracket_uses.push_back(g[node].gen); // zmienna iterujaca
+                bracket_uses.push_back(g[node_vector].gen); //wektor zwracany
+                bracket_uses.push_back(g[i].gen);
+                bracket_arguments.push_back(g[node].gen);
+                bracket_arguments.push_back(g[node_vector].gen);
+                bracket_arguments.push_back(g[i].gen);
+                string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(global_CallNumber++);
+                vertex_t node_bracket;
+                node_bracket = boost::add_vertex(g);
+                g[node_bracket].color = color_twoBrackets;
+                g[node_bracket].name = string("[[()")+std::to_string(global_CallNumber++);
+                g[node_bracket].uses = bracket_uses;
+                g[node_bracket].lastInstruction = false;
+                g[node_bracket].gen = functionName_bracket; 
+                g[node_bracket].functionName = "[[";
+                g[node_bracket].originalFunctionName = "[[";
+                g[node_bracket].arguments = bracket_arguments;
+                g[node_bracket].isLeftSideOfAssign = true;
+                g[node_bracket].isLeftAssign = false;
+                
+                e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
+                g[e.first].color = color_control_flow;
+                
+                e = add_edge(node, node_bracket, g);
+                g[e.first].color = color_control_dependency;
+                flowVertex = node_bracket;
+                
+                // i teraz assignment
+                
+                list<string> assignment_uses, assignment_arguments;
+                assignment_uses.push_back(g[node_vector].gen); //wektor zwracany
+                assignment_uses.push_back(g[i].gen);
+                assignment_uses.push_back(g[node_bracket].gen);
+                assignment_arguments.push_back(g[node_vector].gen);
+                assignment_arguments.push_back(g[i].gen);
+                assignment_arguments.push_back(g[node_bracket].gen);
+                // string functionName_assignment = string("<-_")+concatenateStringList(assignment_uses)+string("_")+std::to_string(global_CallNumber++);
+                vertex_t node_assignment;
+                node_assignment = boost::add_vertex(g);
+                g[node_assignment].color = color_assignment;
+                g[node_assignment].name = string("<-()")+std::to_string(global_CallNumber++);
+                g[node_assignment].uses = assignment_uses;
+                g[node_assignment].lastInstruction = false;
+                g[node_assignment].gen = g[node_vector].gen;
+                g[node_assignment].functionName = "<-";
+                g[node_assignment].originalFunctionName = "<-";
+                g[node_assignment].arguments = assignment_arguments;
+                g[node_assignment].isLeftSideOfAssign = false;
+                g[node_assignment].isLeftAssign = true;
+                
+                bracket_uses.push_back(g[node_assignment].gen);
+                g[node_bracket].uses = bracket_uses;
+                bracket_arguments.push_back(g[node_assignment].gen);
+                g[node_bracket].arguments = bracket_arguments;
+                
+                e = add_edge(flowVertex, node_assignment, g); //troche watpliwe
+                g[e.first].color = color_control_flow;
+                
+                e = add_edge(node, node_assignment, g);
+                g[e.first].color = color_control_dependency;
+                flowVertex = node_assignment;
+                
+              }
+              
+              // Pytania: skad wziac nazwe argumentu?
+              // Odpowiedz: przejsc po tych wierzcholkach i pierwszy napotkany typu argument to argument
+              // if (wierzcholek korzysta z argumentu (y)) {
+              //    if(nie stworzono jeszcze pobierania z wektora wejsciowego)
+              //    {
+              //        stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
+              //    }
+              //    podmien na bracketa
+              // }
+              // if (wierzcholek jest typu return)
+              // {
+              //    to co generuje wierzcholek dajemy do sztucznie utworzonego przypisania z [[]]  
+              // }
+              
+              // usun zbedne wierzcholki: argumenty
+              
+            }
+      
         }
         functionIndex++;
     }
+    my_uses.pop_front(); // zeby w lapply(x, fun,...) ten x nie wskazywal na petle. bedzie wskazywal przez length
     g[node].uses = my_uses;
     g[node].lastInstruction = lastInstruction;
-    string functionName = concatenateStringList(my_uses);
-    functionName = getLangName(s) + functionName;
-    uses.push_back(graphUtils::getCanonicalName(functionName,variableName2variableName));
-    if(isLeftAssign)
-    {
-        functionName = returnValueVariableName;
-    }
-    g[node].gen = functionName;
+    
+    //g[node_vector].gen = g[node].gen; // TO DOSZLO JAKO MODYFIKACJA // jednak raczej nie, to dwa osobne byty
     g[node].functionName = getLangName(s);
     g[node].originalFunctionName = graphUtils::getCanonicalName(getLangName(
                                                            s),
@@ -1090,6 +1333,7 @@ void CDGMaker::createNodeForCallNode(SEXP s,
     else if(!strcmp(getLangName(s), ":"))
     {
         g[node].color = color_colon;
+        // g[node].color = color_comparisonOperator;
     }
     else if(!strcmp(getLangName(s), "+")
             || !strcmp(getLangName(s), "-")

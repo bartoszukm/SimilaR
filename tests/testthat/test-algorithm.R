@@ -1275,47 +1275,47 @@ test_that("ifs5", {
   expect_equal(sum(res[2:5, 5]< rep(1, nrow(res)-2)), length(rep(1, nrow(res)-2)))
 })
 
-# test_that("loops1", {
-#   f1 <- function(x)
-#   {
-#     ret <- lapply(x, fun, ...)
-#     return(ret)
-#   }
-#   
-#   f2 <- function(x)
-#   {
-#     ret <- vector("list", length(x))
-#     for (i in 1:length(x))
-#       ret[[i]] <- fun(x[[i]], ...)
-#     return(ret)
-#   }
-#   
-#   f3 <- function(x)
-#   {
-#     ret <- list()
-#     for (el in x) 
-#       ret[[length(ret)+1]] <- fun(el, ...)
-#     return(ret)
-#   }
-#   
-#   res <- SimilaR_fromTwoFunctions(f1, 
-#                                   f2, returnType = "data.frame", aggregation = "both")
-#   expect_true(is.data.frame(res))
-#   expect_equal(res[1, 3], 1)
-#   expect_equal(res[1, 4], 1)
-#   expect_equal(res[1, 5], 1)
-#   
-#   res <- SimilaR_fromTwoFunctions(f2, 
-#                                   f3, returnType = "data.frame", aggregation = "both")
-#   expect_true(is.data.frame(res))
-#   expect_lt(res[1, 3], 1)
-#   expect_lt(res[1, 4], 1)
-#   
-#   res <- SimilaR_fromTwoFunctions(f1, 
-#                                   f3, returnType = "data.frame", aggregation = "both")
-#   expect_true(is.data.frame(res))
-#   expect_lt(res[1, 3], 1)
-#   expect_lt(res[1, 4], 1)
-#   
-# })
-# 
+test_that("loops1", {
+  f1 <- function(x)
+  {
+    ret <- lapply(x, function(y){y+5})
+    return(ret)
+  }
+  
+  f2 <- function(x)
+  {
+    ret <- vector("list", length(x))
+    for (i in 1:length(x))
+      ret[[i]] <- x[[i]]+5
+    return(ret)
+  }
+  
+  f3 <- function(x)
+  {
+    ret <- vector("list", length(x))
+    while (i <= length(x))
+    {
+      ret[[i]] <- x[[i]]+5
+    }
+    return(ret)
+  }
+  
+  funs <- list(f1, f2) # ,f3
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(sum(res[1, 3] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1, 4] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+
+})
+
