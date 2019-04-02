@@ -353,6 +353,19 @@ void PostprocessingPDG::removeSymbolNodes(GraphType& g)
   }
 }
 
+void PostprocessingPDG::colonToComparison(GraphType& g)
+{
+  graph_traits<GraphType>::vertex_iterator vi, vi_end, next;
+  tie(vi, vi_end) = vertices(g);
+  for (next = vi; vi != vi_end; vi = next) {
+    ++next;
+    if(g[*vi].color == color_colon)
+    {
+      g[*vi].color = color_comparisonOperator;
+    }
+  }
+}
+
 void PostprocessingPDG::memoryClean(GraphType& g)
 {
   GraphType::vertex_iterator it, itEnd;

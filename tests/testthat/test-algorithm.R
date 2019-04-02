@@ -1293,14 +1293,16 @@ test_that("loops1", {
   f3 <- function(x)
   {
     ret <- vector("list", length(x))
+    i <- 1
     while (i <= length(x))
     {
       ret[[i]] <- x[[i]]+5
+      i <- i + 1
     }
     return(ret)
   }
   
-  funs <- list(f1, f2) # ,f3
+  funs <- list(f1, f2, f3)
   
   res <- NULL
   for (i in 1:(length(funs)-1))
@@ -1313,9 +1315,9 @@ test_that("loops1", {
       
     }
   expect_true(is.data.frame(res))
-  expect_equal(sum(res[1, 3] == rep(1, nrow(res))), length(rep(1, nrow(res))))
-  expect_equal(sum(res[1, 4] == rep(1, nrow(res))), length(rep(1, nrow(res))))
-  expect_equal(sum(res[1, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 3] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 4] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
 
 })
 
