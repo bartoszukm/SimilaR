@@ -882,6 +882,8 @@ void CDGMaker::makeApplyNode(SEXP s,
                              bool lastInstruction,
                              bool isLeftAssign,
                              list<string>* additional_uses) {
+  Rcout << "APPLY - start" << endl;
+  boost::graph_traits<GraphType>::in_edge_iterator in_e, in_e_end;
     vertex_t* entry = NULL;
 
     vertex_t oldControlVertex = controlVertex;
@@ -1076,51 +1078,74 @@ void CDGMaker::makeApplyNode(SEXP s,
             
             for(size_t i=vertices_count_before; i<vertices_count_after; ++i)
             {
-              // Rcout << g[i].name << endl;
-              // Rcout << g[i].functionName << endl;
+              Rcout << g[i].name << endl;
+              Rcout << g[i].functionName << endl;
               
               if(g[i].color == color_parameter)
               {
-                //  stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
-                list<string> bracket_uses, bracket_arguments;
-                string argument_name = *it_argument;
-                bracket_uses.push_back(g[node].gen); // zmienna iterujaca
-                bracket_uses.push_back(argument_name); //wektor z ktorego bierzemy
-                bracket_arguments.push_back(g[node].gen);
-                bracket_arguments.push_back(argument_name);
-                string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(global_CallNumber++);
-                vertex_t node_bracket;
-                node_bracket = boost::add_vertex(g);
-                g[node_bracket].color = color_twoBrackets;
-                g[node_bracket].name = string("[[()")+std::to_string(global_CallNumber++);
-                g[node_bracket].uses = bracket_uses;
-                g[node_bracket].lastInstruction = false;
-                g[node_bracket].gen = functionName_bracket; 
-                g[node_bracket].functionName = "[[";
-                g[node_bracket].originalFunctionName = "[[";
-                g[node_bracket].arguments = bracket_arguments;
-                g[node_bracket].isLeftSideOfAssign = false;
-                g[node_bracket].isLeftAssign = false;
+                Rcout << "parameter - start" << endl;
                 
-                e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
-                g[e.first].color = color_control_flow;
-                
-                e = add_edge(node, node_bracket, g);
-                g[e.first].color = color_control_dependency;
-                flowVertex = node_bracket;
-                
-                ++it_argument;
-                
-                for(size_t j=i+1; j<vertices_count_after; ++j)
+                bool isParameterOfThisApply = false; // jesli to parametr zagniezdzonego apply, to pomin
+                for (tie(in_e, in_e_end) = in_edges(i, g);
+                     in_e != in_e_end; ++in_e)
                 {
-                  std::replace (
-                      g[j].uses.begin(),
-                      g[j].uses.end(), g[i].gen, g[node_bracket].gen);
+                  if(g[*in_e].color == color_control_dependency)
+                  {
+                    if(source(*in_e, g) == node)
+                    {
+                      isParameterOfThisApply = true;
+                      break;
+                    }
+                  }
+                }
+                if(isParameterOfThisApply)
+                {
+                  //  stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
+                  list<string> bracket_uses, bracket_arguments;
+                  string argument_name = *it_argument;
+                  bracket_uses.push_back(g[node].gen); // zmienna iterujaca
+                  bracket_uses.push_back(argument_name); //wektor z ktorego bierzemy
+                  bracket_arguments.push_back(g[node].gen);
+                  bracket_arguments.push_back(argument_name);
+                  string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(global_CallNumber++);
+                  vertex_t node_bracket;
+                  node_bracket = boost::add_vertex(g);
+                  g[node_bracket].color = color_twoBrackets;
+                  g[node_bracket].name = string("[[()")+std::to_string(global_CallNumber++);
+                  g[node_bracket].uses = bracket_uses;
+                  g[node_bracket].lastInstruction = false;
+                  g[node_bracket].gen = functionName_bracket; 
+                  g[node_bracket].functionName = "[[";
+                  g[node_bracket].originalFunctionName = "[[";
+                  g[node_bracket].arguments = bracket_arguments;
+                  g[node_bracket].isLeftSideOfAssign = false;
+                  g[node_bracket].isLeftAssign = false;
+                  
+                  e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
+                  g[e.first].color = color_control_flow;
+                  
+                  e = add_edge(node, node_bracket, g);
+                  g[e.first].color = color_control_dependency;
+                  flowVertex = node_bracket;
+                  
+                  ++it_argument;
+                  
+                  for(size_t j=i+1; j<vertices_count_after; ++j)
+                  {
+                    std::replace (
+                        g[j].uses.begin(),
+                        g[j].uses.end(), g[i].gen, g[node_bracket].gen);
+                  }
+                  Rcout << "parameter - end" << endl;
                 }
               }
               
               if(g[i].lastInstruction && g[i].name != "if" && g[i].name != "else_part" && g[i].name != "if_part")
               {
+                Rcout << "lastInstruction - start" << endl;
+                
+                
+                
                 g[i].gen = g[node_vector].gen;
                 
                 // Rcout << "last instruction" << endl;
@@ -1151,7 +1176,7 @@ void CDGMaker::makeApplyNode(SEXP s,
                 e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
                 g[e.first].color = color_control_flow;
                 
-                boost::graph_traits<GraphType>::in_edge_iterator in_e, in_e_end;
+                
                 
                 for (tie(in_e, in_e_end) = in_edges(i, g);
                      in_e != in_e_end; ++in_e)
@@ -1208,7 +1233,7 @@ void CDGMaker::makeApplyNode(SEXP s,
                     break;
                   }
                 }
-                
+                Rcout << "lastInstruction - end" << endl;
               }
               
               // Pytania: skad wziac nazwe argumentu?
@@ -1245,6 +1270,8 @@ void CDGMaker::makeApplyNode(SEXP s,
     e = add_edge(flowVertex, node, g);
     g[e.first].color = color_control_flow;
     flowVertex = node;
+    
+    Rcout << "APPLY - end" << endl;
 }
 
 void CDGMaker::makeNameSymbolNode(SEXP s,
