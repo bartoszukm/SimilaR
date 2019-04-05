@@ -1321,3 +1321,160 @@ test_that("loops1", {
 
 })
 
+test_that("loops2", {
+  
+  f1 <- function(x)
+  {
+    s <- 0
+    i <- 1
+    while(i <= length(x))
+    {
+      s<- s + x[[i]]  
+      i <- i + 1
+    }
+    s
+  }
+  
+  f2 <- function(x)
+  {
+    s <- 0
+    for(i in 1:length(x))
+    {
+      s<- s + x[[i]]  
+    }
+    s
+  }
+  
+  
+  res <- SimilaR_fromTwoFunctions(f1, 
+                                  f2, returnType = "data.frame", aggregation = "both")
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+  
+})
+
+test_that("loops3", {
+  
+  f1 <- function(x, y)
+  {
+    ret <- vector("list", length(x))
+    for(i in 1:length(x))
+    {
+      ret[[i]] <- x[[i]] + y[[i]]
+    } 
+    ret
+  }
+  
+  f2 <- function(x, y)
+  {
+    ret <- vector("list", length(x))
+    i <- 1
+    while(i <= length(x))
+    {
+      ret[[i]] <- x[[i]] + y[[i]]
+      i <- i + 1
+    } 
+    ret
+  }
+  
+  f3 <- function(x, y)
+  {
+    mapply(function(a,b) {a+b}, x, y)
+  }
+  
+  funs <- list(f1, f2, f3)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(sum(res[1:3, 3] >= rep(0.9, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 4] >= rep(0.9, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  
+})
+
+
+test_that("loops4", {
+  
+  f1 <- function(x)
+  {
+    ret <- vector("list", length(x))
+    for(i in 1:length(x))
+    {
+      if(x[[i]] %% 2 == 1)
+      {
+        d <- exp(x[[i]])
+        ret[[i]] <- 6 + d
+      }
+      else
+      {
+        ret[[i]] <- log(x[[i]])
+      }
+    } 
+    ret
+  }
+  
+  f2 <- function(x)
+  {
+    ret <- vector("list", length(x))
+    i <- 1
+    while(i <= length(x))
+    {
+      if(x[[i]] %% 2 == 1)
+      {
+        d <- exp(x[[i]])
+        ret[[i]] <- 6 + d
+      }
+      else
+      {
+        ret[[i]] <- log(x[[i]])
+      }
+      i <- i + 1
+    } 
+    ret
+  }
+  
+  f3 <- function(x)
+  {
+    lapply(x, function(a)
+    {
+      if(a %% 2 == 1)
+      {
+        d <- exp(a)
+        6 + d
+      }
+      else
+      {
+        log(a)
+      }
+    }) 
+  }
+  
+  funs <- list(f1, f2, f3)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(sum(res[1:3, 3] >= rep(0.9, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 4] >= rep(0.9, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+  
+})

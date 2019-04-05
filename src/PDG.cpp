@@ -35,14 +35,22 @@ GraphType PDGMaker::MakePDG(SEXP s,
         if(executeChangeWhileLoop) post.changeWhileLoop(pdg);
         post.colonToComparison(pdg);
         post.removeSymbolNodes(pdg);
-        post.memoryClean(pdg);
+        
         
         // graph_traits<GraphType>::vertex_iterator vi, vi_end, next;
         // tie(vi, vi_end) = vertices(pdg);
         // for (next = vi; vi != vi_end; vi = next) {
         //   ++next;
-        //   Rcout << pdg[*vi].color << " " << pdg[*vi].name << ", " << endl;
+        //   
+        //   Rcout << pdg[*vi].color << " " << pdg[*vi].name << ", " << pdg[*vi].functionName << ", gen:" << pdg[*vi].gen << endl;
+        //   for(auto s : pdg[*vi].uses)
+        //   {
+        //     Rcout << s << ",";
+        //   }
+        //   Rcout << endl;
         // }
+        
+        post.memoryClean(pdg);
         
         return pdg;
 }

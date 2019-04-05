@@ -531,6 +531,11 @@ void CDGMaker::makeIfNode(SEXP s,
       }
     }
     
+    if(!shouldBreakIf)
+    {
+      isIfReturnBranch = false;
+      isElseReturnBranch = false;
+    }
     // Rcout << "isIfReturnBranch: " << isIfReturnBranch << endl;
     // Rcout << "isElseReturnBranch: " << isElseReturnBranch << endl;
     // Rcout << "branchSizeIf: " << branchSizeIf << endl;
@@ -1024,6 +1029,7 @@ void CDGMaker::makeApplyNode(SEXP s,
     
     my_uses.push_back(g[node_colon].gen);
     
+    // Rcout << "koniec sztucznych wierzcholkow" << endl;
     // koniec sztucznych wierzcholkow
     
 
@@ -1058,10 +1064,11 @@ void CDGMaker::makeApplyNode(SEXP s,
             entry = &node;
             
             size_t vertices_count_before = num_vertices(g);
-            
+            shouldBreakIf = false;
             makeCDGfromFunction(CAR(
                                     t), entry,
                                 returnValueVariableName, flowVertex);
+            shouldBreakIf = true;
             g[node].functionPosition = functionIndex;
             
             size_t vertices_count_after = num_vertices(g);
@@ -1112,16 +1119,21 @@ void CDGMaker::makeApplyNode(SEXP s,
                 }
               }
               
-              if(g[i].lastInstruction)
+              if(g[i].lastInstruction && g[i].name != "if" && g[i].name != "else_part" && g[i].name != "if_part")
               {
+                g[i].gen = g[node_vector].gen;
+                
+                // Rcout << "last instruction" << endl;
+                // Rcout << g[i].name << endl;
+                // Rcout << g[i].functionName << endl;
                 // to co generuje wierzcholek dajemy do sztucznie utworzonego przypisania z [[]]  
                 list<string> bracket_uses, bracket_arguments;
                 bracket_uses.push_back(g[node].gen); // zmienna iterujaca
                 bracket_uses.push_back(g[node_vector].gen); //wektor zwracany
-                bracket_uses.push_back(g[i].gen);
+                //bracket_uses.push_back(g[i].gen);
                 bracket_arguments.push_back(g[node].gen);
                 bracket_arguments.push_back(g[node_vector].gen);
-                bracket_arguments.push_back(g[i].gen);
+                // bracket_arguments.push_back(g[i].gen);
                 string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(global_CallNumber++);
                 vertex_t node_bracket;
                 node_bracket = boost::add_vertex(g);
@@ -1139,18 +1151,29 @@ void CDGMaker::makeApplyNode(SEXP s,
                 e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
                 g[e.first].color = color_control_flow;
                 
-                e = add_edge(node, node_bracket, g);
-                g[e.first].color = color_control_dependency;
-                flowVertex = node_bracket;
+                boost::graph_traits<GraphType>::in_edge_iterator in_e, in_e_end;
+                
+                for (tie(in_e, in_e_end) = in_edges(i, g);
+                     in_e != in_e_end; ++in_e)
+                {
+                  if(g[*in_e].color == color_control_dependency)
+                  {
+                    e = add_edge(source(*in_e, g), node_bracket, g);
+                    g[e.first].color = color_control_dependency;
+                    flowVertex = node_bracket;
+                    break;
+                  }
+                }
+                
                 
                 // i teraz assignment
                 
                 list<string> assignment_uses, assignment_arguments;
                 assignment_uses.push_back(g[node_vector].gen); //wektor zwracany
-                assignment_uses.push_back(g[i].gen);
+                // assignment_uses.push_back(g[i].gen);
                 assignment_uses.push_back(g[node_bracket].gen);
                 assignment_arguments.push_back(g[node_vector].gen);
-                assignment_arguments.push_back(g[i].gen);
+                // assignment_arguments.push_back(g[i].gen);
                 assignment_arguments.push_back(g[node_bracket].gen);
                 // string functionName_assignment = string("<-_")+concatenateStringList(assignment_uses)+string("_")+std::to_string(global_CallNumber++);
                 vertex_t node_assignment;
@@ -1174,9 +1197,17 @@ void CDGMaker::makeApplyNode(SEXP s,
                 e = add_edge(flowVertex, node_assignment, g); //troche watpliwe
                 g[e.first].color = color_control_flow;
                 
-                e = add_edge(node, node_assignment, g);
-                g[e.first].color = color_control_dependency;
-                flowVertex = node_assignment;
+                for (tie(in_e, in_e_end) = in_edges(i, g);
+                     in_e != in_e_end; ++in_e)
+                {
+                  if(g[*in_e].color == color_control_dependency)
+                  {
+                    e = add_edge(source(*in_e, g), node_assignment, g);
+                    g[e.first].color = color_control_dependency;
+                    flowVertex = node_assignment;
+                    break;
+                  }
+                }
                 
               }
               
@@ -2384,7 +2415,7 @@ void CDGMaker::makeCDG_rec_cpp_wrapper(
                                     s)), returnValueVariableName,
                             controlVertex, flowVertex,
                             if_node,structuredTransfersOfControl,
-                            true);
+                            lastInstruction);
         }
         else
         {

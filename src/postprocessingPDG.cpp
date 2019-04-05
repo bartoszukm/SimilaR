@@ -271,6 +271,22 @@ void PostprocessingPDG::mergeTheSameInstructions(GraphType& g)
                     }
                     if(vertexPaired && g[*vi].uses == g[*vi2].uses)
                     {
+                      // Rcout << "merge the same:" << endl;
+                      // Rcout << "gen: " << g[*vi].gen << endl;
+                      //   Rcout << g[*vi].color << " " << g[*vi].name << ", " << g[*vi].functionName << endl;
+                      //   for(auto s : g[*vi].uses)
+                      //   {
+                      //     Rcout << s << ",";
+                      //   }
+                      //   Rcout << endl;
+                      // Rcout << "gen: " << g[*vi2].gen << endl;
+                      // Rcout << g[*vi2].color << " " << g[*vi2].name << ", " << g[*vi2].functionName << endl;
+                      // for(auto s : g[*vi2].uses)
+                      // {
+                      //   Rcout << s << ",";
+                      // }
+                      // Rcout << endl << "---"<< endl;
+                      
                         for (tie(out_e, out_e_end) = out_edges(*vi2, g);
                              out_e != out_e_end; ++out_e)
                         {

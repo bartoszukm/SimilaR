@@ -34,6 +34,7 @@ const unsigned long long int global_CallNumber_startValue;
 unsigned long long int global_CallNumber;
 map<string, string> variableName2variableName;
 SEXP stopifnotSEXP;
+bool shouldBreakIf;
 
 string constantToString(SEXP s);
 string concatenateStringList(list<string> l);
@@ -203,7 +204,8 @@ int makeLexicalComparison(SEXP s1, SEXP s2);
 public:
 CDGMaker() :
     global_CallNumber_startValue(0),
-    global_CallNumber(global_CallNumber_startValue){
+    global_CallNumber(global_CallNumber_startValue),
+    shouldBreakIf(true){
     }
 
 GraphType makeCDG_cpp(SEXP obj, vertex_t*& entry);   //zwracany do R graf to lista 3 rzeczy: macierz sasiedztwa, kolory i texty wierzcholkow
