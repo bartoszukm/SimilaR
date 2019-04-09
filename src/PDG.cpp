@@ -41,7 +41,7 @@ GraphType PDGMaker::MakePDG(SEXP s,
         // tie(vi, vi_end) = vertices(pdg);
         // for (next = vi; vi != vi_end; vi = next) {
         //   ++next;
-        //   
+        // 
         //   Rcout << pdg[*vi].color << " " << pdg[*vi].name << ", " << pdg[*vi].functionName << ", gen:" << pdg[*vi].gen << endl;
         //   for(auto s : pdg[*vi].uses)
         //   {

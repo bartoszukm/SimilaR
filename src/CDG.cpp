@@ -739,34 +739,116 @@ void CDGMaker::makeForNode(SEXP s,
     string gen;
 
     vertex_t oldControlVertex = controlVertex;
-
+    
+    bool isForeach = false; // jesli true to raczej operujemy na elemencie, np. for(e in x), a false jak raczej for(i in 1:length(x))
+    list<string> arguments;
+    
     for(SEXP s1 = s; s1 != R_NilValue; s1 = CDR(s1))
     {
         if(index==0)
         {
             ;
-
         }
         else if(index == 1)
         {
-
             gen = CHAR(PRINTNAME(CAR(s1)));
         }
         else if(index == 2)
         {
             if(TYPEOF(CAR(s1)) == SYMSXP)
             {
-
+                // Rcout << "symbol w for" << endl;
+                isForeach = true;
                 uses.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(s1))),
                                                    variableName2variableName));
+                arguments.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(s1))),
+                                                                  variableName2variableName));
             }
             else if(TYPEOF(CAR(s1)) == LANGSXP)
             {
-                makeCallNode(CAR(
-                                 s1), returnValueVariableName,
+                size_t my_uses_size_before = uses.size();
+                makeCallNode(CAR(s1), returnValueVariableName,
                              controlVertex,
                              flowVertex, uses, true, false,false, false, false
                          );
+                size_t my_uses_size_after = uses.size();
+                auto it = uses.begin();
+                for(size_t i = 0; i < my_uses_size_before; ++i)
+                  ++it;
+                int my_uses_index = 0;
+                for(size_t i = my_uses_size_before; i < my_uses_size_after; ++i)
+                {
+                  arguments.push_back(*it);
+                  ++it;
+                  my_uses_index++;
+                }
+              
+              // tu sprawdzamy czy ta funkcja to nie byl moze :, seq_len, seq_along, seq
+              string fn = graphUtils::getCanonicalName(getLangName(CAR(s1)), variableName2variableName);
+              // Rcout << "Nazwa funkcji w for:" << fn << endl;
+              if(fn != "seq" && fn != ":" && fn != "seq_len" && fn != "seq_along")
+              {
+                isForeach = true;
+              }
+            }
+            
+            if(isForeach)
+            {
+              // Rcout << "jest Foreach, tworze sztuczne wierzcholki" << endl;
+              // jesli to foreach, to dodaj 1:length(to co wczesniej)
+              // length(x)
+              string functionName_length = string("length_")+std::to_string(global_CallNumber++);
+              list<string> length_uses, length_arguments;
+              length_uses.push_back(arguments.front());
+              length_arguments.push_back(arguments.front());
+              vertex_t node_length;
+              node_length = boost::add_vertex(g);
+              g[node_length].color = color_functionZeroArgument;
+              g[node_length].name = string("length()")+std::to_string(global_CallNumber++);
+              g[node_length].uses = length_uses;
+              g[node_length].lastInstruction = false;
+              g[node_length].gen = functionName_length;
+              g[node_length].functionName = "length";
+              g[node_length].originalFunctionName = "length";
+              g[node_length].arguments = length_arguments;
+              g[node_length].isLeftSideOfAssign = false;
+              g[node_length].isLeftAssign = false;
+              
+              std::pair<edge_t, bool> e = add_edge(flowVertex, node_length, g);
+              g[e.first].color = color_control_flow;
+              
+              e = add_edge(controlVertex, node_length, g);
+              g[e.first].color = color_control_dependency;
+              flowVertex = node_length;
+              
+              list<string> colon_uses, colon_arguments;
+              colon_uses.push_back("1");
+              colon_uses.push_back(functionName_length);
+              colon_arguments.push_back("1");
+              colon_arguments.push_back(functionName_length);
+              string functionName_colon = string("colon_")+concatenateStringList(colon_uses)+string("_")+std::to_string(global_CallNumber++);
+              vertex_t node_colon;
+              node_colon = boost::add_vertex(g);
+              g[node_colon].color = color_colon;
+              g[node_colon].name = string(":()")+std::to_string(global_CallNumber++);
+              g[node_colon].uses = colon_uses;
+              g[node_colon].lastInstruction = false;
+              g[node_colon].gen = functionName_colon; 
+              g[node_colon].functionName = "colon";
+              g[node_colon].originalFunctionName = "colon";
+              g[node_colon].arguments = colon_arguments;
+              g[node_colon].isLeftSideOfAssign = false;
+              g[node_colon].isLeftAssign = false;
+              
+              e = add_edge(flowVertex, node_colon, g);
+              g[e.first].color = color_control_flow;
+              
+              e = add_edge(controlVertex, node_colon, g);
+              g[e.first].color = color_control_dependency;
+              flowVertex = node_colon;
+              
+              uses.pop_front(); //upewnic sie !!!!!
+              uses.push_back(g[node_colon].gen);
             }
 
         }
@@ -792,12 +874,55 @@ void CDGMaker::makeForNode(SEXP s,
 
             flowVertex = node;
             list<pair<vertex_t*, vertex_t*> > structuredTransfersOfControl;
+            size_t vertices_count_before = num_vertices(g);
             makeCDG_rec_cpp_wrapper(s1, returnValueVariableName,
                                     node,flowVertex,NULL,
                                     &structuredTransfersOfControl,
                                     lastInstruction);
             makeStructuredTransfersOfControlForLoop(
                 node, &structuredTransfersOfControl);
+            size_t vertices_count_after = num_vertices(g);
+            
+            
+            
+            if(isForeach)
+            {
+              //  stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
+              list<string> bracket_uses, bracket_arguments;
+              string argument_name = arguments.front();
+              bracket_uses.push_back(g[node].gen); // zmienna iterujaca
+              bracket_uses.push_back(argument_name); //wektor z ktorego bierzemy
+              bracket_arguments.push_back(g[node].gen);
+              bracket_arguments.push_back(argument_name);
+              string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(global_CallNumber++);
+              vertex_t node_bracket;
+              node_bracket = boost::add_vertex(g);
+              g[node_bracket].color = color_twoBrackets;
+              g[node_bracket].name = string("[[()")+std::to_string(global_CallNumber++);
+              g[node_bracket].uses = bracket_uses;
+              g[node_bracket].lastInstruction = false;
+              g[node_bracket].gen = functionName_bracket; 
+              g[node_bracket].functionName = "[[";
+              g[node_bracket].originalFunctionName = "[[";
+              g[node_bracket].arguments = bracket_arguments;
+              g[node_bracket].isLeftSideOfAssign = false;
+              g[node_bracket].isLeftAssign = false;
+              
+              e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
+              g[e.first].color = color_control_flow;
+              
+              e = add_edge(node, node_bracket, g);
+              g[e.first].color = color_control_dependency;
+              flowVertex = node_bracket;
+              
+              for(size_t j=vertices_count_before; j<vertices_count_after; ++j)
+              {
+                std::replace (
+                    g[j].uses.begin(),
+                    g[j].uses.end(), gen, g[node_bracket].gen);
+              }
+            }
+            
             e = add_edge(flowVertex, node, g);
             g[e.first].color = color_control_flow;
             flowVertex = node;
@@ -882,7 +1007,7 @@ void CDGMaker::makeApplyNode(SEXP s,
                              bool lastInstruction,
                              bool isLeftAssign,
                              list<string>* additional_uses) {
-  Rcout << "APPLY - start" << endl;
+  // Rcout << "APPLY - start" << endl;
   boost::graph_traits<GraphType>::in_edge_iterator in_e, in_e_end;
     vertex_t* entry = NULL;
 
@@ -1078,12 +1203,12 @@ void CDGMaker::makeApplyNode(SEXP s,
             
             for(size_t i=vertices_count_before; i<vertices_count_after; ++i)
             {
-              Rcout << g[i].name << endl;
-              Rcout << g[i].functionName << endl;
+              // Rcout << g[i].name << endl;
+              // Rcout << g[i].functionName << endl;
               
               if(g[i].color == color_parameter)
               {
-                Rcout << "parameter - start" << endl;
+                // Rcout << "parameter - start" << endl;
                 
                 bool isParameterOfThisApply = false; // jesli to parametr zagniezdzonego apply, to pomin
                 for (tie(in_e, in_e_end) = in_edges(i, g);
@@ -1136,13 +1261,13 @@ void CDGMaker::makeApplyNode(SEXP s,
                         g[j].uses.begin(),
                         g[j].uses.end(), g[i].gen, g[node_bracket].gen);
                   }
-                  Rcout << "parameter - end" << endl;
+                  // Rcout << "parameter - end" << endl;
                 }
               }
               
               if(g[i].lastInstruction && g[i].name != "if" && g[i].name != "else_part" && g[i].name != "if_part")
               {
-                Rcout << "lastInstruction - start" << endl;
+                // Rcout << "lastInstruction - start" << endl;
                 
                 
                 
@@ -1233,7 +1358,7 @@ void CDGMaker::makeApplyNode(SEXP s,
                     break;
                   }
                 }
-                Rcout << "lastInstruction - end" << endl;
+                // Rcout << "lastInstruction - end" << endl;
               }
               
               // Pytania: skad wziac nazwe argumentu?
@@ -1271,7 +1396,7 @@ void CDGMaker::makeApplyNode(SEXP s,
     g[e.first].color = color_control_flow;
     flowVertex = node;
     
-    Rcout << "APPLY - end" << endl;
+    // Rcout << "APPLY - end" << endl;
 }
 
 void CDGMaker::makeNameSymbolNode(SEXP s,

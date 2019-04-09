@@ -83,14 +83,14 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                   if(g[*in_e].color != color_data_dependency) continue;
                   vertex_t nei = source(*in_e,g); // szukam warunku, czyli po data dependency, np. <=
                   
-                  Rcout << "nei:" << endl;
-                  Rcout << "gen: " << g[nei].gen << endl;
-                  Rcout << g[nei].color << " " << g[nei].name << ", " << g[nei].functionName << endl;
-                  for(auto s : g[nei].uses)
-                  {
-                    Rcout << s << ",";
-                  }
-                  Rcout << endl << "---" << endl;
+                  // Rcout << "nei:" << endl;
+                  // Rcout << "gen: " << g[nei].gen << endl;
+                  // Rcout << g[nei].color << " " << g[nei].name << ", " << g[nei].functionName << endl;
+                  // for(auto s : g[nei].uses)
+                  // {
+                  //   Rcout << s << ",";
+                  // }
+                  // Rcout << endl << "---" << endl;
                   
                   uses.insert(g[nei].uses.begin(), g[nei].uses.end()); // w uses to z czego korzysta warunek, liczymy ze ze zmiennej iterujacej, ale tez np. z dlugosci
                   for (tie(in_e2, in_e_end2) = in_edges(nei, g);
@@ -101,14 +101,14 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                       {
                           initialVertices[g[nei2].gen] = nei2;
                         
-                          Rcout << "initialVertices:" << endl;
-                          Rcout << "gen: " << g[nei2].gen << endl;
-                          Rcout << g[nei2].color << " " << g[nei2].name << ", " << g[nei2].functionName << endl;
-                          for(auto s : g[nei2].uses)
-                          {
-                            Rcout << s << ",";
-                          }
-                          Rcout << endl << "---" << endl;
+                          // Rcout << "initialVertices:" << endl;
+                          // Rcout << "gen: " << g[nei2].gen << endl;
+                          // Rcout << g[nei2].color << " " << g[nei2].name << ", " << g[nei2].functionName << endl;
+                          // for(auto s : g[nei2].uses)
+                          // {
+                          //   Rcout << s << ",";
+                          // }
+                          // Rcout << endl << "---" << endl;
                           
                           if(g[nei2].uses.size() == 1)
                           {
@@ -127,14 +127,14 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                   if(uses.find(g[nei].gen) != uses.end()) // szukamy czy ktos w ciele nie nadpisuje wartosci np. zmiennej iterujacej czy dlugosci (niemozliwe), np. i <- i + 1
                   {
                     changes = true;
-                    Rcout << "variablesChangedInLoop:" << endl;
-                    Rcout << "gen: " << g[nei].gen << endl;
-                    Rcout << g[nei].color << " " << g[nei].name << ", " << g[nei].functionName << endl;
-                    for(auto s : g[nei].uses)
-                    {
-                      Rcout << s << ",";
-                    }
-                    Rcout << endl << "---" << endl;
+                    // Rcout << "variablesChangedInLoop:" << endl;
+                    // Rcout << "gen: " << g[nei].gen << endl;
+                    // Rcout << g[nei].color << " " << g[nei].name << ", " << g[nei].functionName << endl;
+                    // for(auto s : g[nei].uses)
+                    // {
+                    //   Rcout << s << ",";
+                    // }
+                    // Rcout << endl << "---" << endl;
                     
                       variablesChangedInLoop.emplace(g[nei].gen);
                       for (tie(out_e2, out_e_end2) = out_edges(nei, g); // chodzimy po sasiadach (data sasiadach) tego wierzcholka i <- i + 1
@@ -155,7 +155,7 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                           }
                           if(!paired)
                           {
-                            Rcout << "not paired" << endl;
+                            // Rcout << "not paired" << endl;
                               std::pair<edge_t,
                                         bool> e = add_edge(*vi, target(*out_e2,
                                                                        g), g); //gdy ktos uzywa zmiennej iterujacej, to dodaje zaleznosc od while
@@ -169,14 +169,14 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                           ++next;
                       }
                       
-                      Rcout << "remove:" << endl;
-                      Rcout << "gen: " << g[nei].gen << endl;
-                      Rcout << g[nei].color << " " << g[nei].name << ", " << g[nei].functionName << endl;
-                      for(auto s : g[nei].uses)
-                      {
-                        Rcout << s << ",";
-                      }
-                      Rcout << endl << "---" << endl;
+                      // Rcout << "remove:" << endl;
+                      // Rcout << "gen: " << g[nei].gen << endl;
+                      // Rcout << g[nei].color << " " << g[nei].name << ", " << g[nei].functionName << endl;
+                      // for(auto s : g[nei].uses)
+                      // {
+                      //   Rcout << s << ",";
+                      // }
+                      // Rcout << endl << "---" << endl;
                       
                       clear_vertex(nei, g); // usuwam i <- i + 1
                       remove_vertex(nei, g);
