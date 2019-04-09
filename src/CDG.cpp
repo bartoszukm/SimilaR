@@ -1268,15 +1268,29 @@ void CDGMaker::makeApplyNode(SEXP s,
                   
                   e = add_edge(flowVertex, node_bracket, g); //troche watpliwe
                   g[e.first].color = color_control_flow;
-                  
-                  e = add_edge(node, node_bracket, g);
-                  g[e.first].color = color_control_dependency;
                   flowVertex = node_bracket;
                   
                   ++it_argument;
-                  
+                  bool isFirstOccurenceFound = false;
                   for(size_t j=i+1; j<vertices_count_after; ++j)
                   {
+                    if(std::find(g[j].uses.begin(), g[j].uses.end() , g[i].gen) != g[j].uses.end() && !isFirstOccurenceFound)
+                    {
+                      isFirstOccurenceFound = true;
+                      
+                      for (tie(in_e, in_e_end) = in_edges(j, g);
+                           in_e != in_e_end; ++in_e)
+                      {
+                        if(g[*in_e].color == color_control_dependency)
+                        {
+                          e = add_edge(source(*in_e, g), node_bracket, g);
+                          g[e.first].color = color_control_dependency;
+                          break;
+                        }
+                      }
+                    }
+                    
+                    
                     std::replace (
                         g[j].uses.begin(),
                         g[j].uses.end(), g[i].gen, g[node_bracket].gen);
