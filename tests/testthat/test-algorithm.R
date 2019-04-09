@@ -1630,8 +1630,8 @@ test_that("loops7", {
       
     }
   expect_true(is.data.frame(res))
-  expect_equal(sum(res[1:3, 3] >= rep(0.9, nrow(res))), length(rep(1, nrow(res))))
-  expect_equal(sum(res[1:3, 4] >= rep(0.9, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 3] >= rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 4] >= rep(1, nrow(res))), length(rep(1, nrow(res))))
   expect_equal(sum(res[1:3, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
   
 })
