@@ -1635,3 +1635,34 @@ test_that("loops7", {
   expect_equal(sum(res[1:3, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
   
 })
+
+test_that("loops8", {
+  
+  f1 <- function(x, y)
+  {
+    lapply(x, function(a, b){a+b})
+  }
+  
+  f2 <- function(x, y)
+  {
+    lapply(x, function(){x+y})
+  }
+  
+  
+  
+  funs <- list(f1, f2)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  
+})
+
