@@ -1226,7 +1226,7 @@ void CDGMaker::makeApplyNode(SEXP s,
               // Rcout << g[i].name << endl;
               // Rcout << g[i].functionName << endl;
               
-              if(g[i].color == color_parameter)
+              if(g[i].color == color_parameter && it_argument != arguments.end())
               {
                 // Rcout << "parameter - start" << endl;
                 
