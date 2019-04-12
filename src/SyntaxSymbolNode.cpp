@@ -2,9 +2,9 @@
 
 unique_ptr<SyntaxNode> SyntaxSymbolNode::ConvertLispToSyntaxNode(SEXP s)
 {
-    unique_ptr<SyntaxNode> node(new SyntaxSymbolNode());
+    SyntaxSymbolNode* node = new SyntaxSymbolNode();
     node->Name = CHAR(PRINTNAME(s));
-    return node;
+    return unique_ptr<SyntaxNode>(node);
 }
 
 string SyntaxSymbolNode::ToString()
@@ -15,9 +15,9 @@ string SyntaxSymbolNode::ToString()
 
 unique_ptr<SyntaxNode> SyntaxSymbolNode::Copy()
 {
-    unique_ptr<SyntaxNode> s(new SyntaxSymbolNode());
-    s->parent = nullptr;
-    s->name = name;
-    s->whichChild = whichChild;
-    return s;
+    SyntaxSymbolNode* s = new SyntaxSymbolNode();
+    s->Parent = nullptr;
+    s->Name = Name;
+    s->WhichChild = WhichChild;
+    return unique_ptr<SyntaxNode>(s);
 }

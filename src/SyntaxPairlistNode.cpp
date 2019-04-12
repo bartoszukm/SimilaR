@@ -2,35 +2,35 @@
 
 unique_ptr<SyntaxNode> SyntaxPairlistNode::ConvertLispToSyntaxNode(SEXP s)
 {
-    unique_ptr<SyntaxNode> node(new SyntaxPairlistNode());
+    SyntaxPairlistNode* node = new SyntaxPairlistNode();
     SEXP s1 = s;
     int n = Rf_length(s1);
 
-    node->arguments = vector<string>(n);
-    node->defaultValues = vector<string>(n);
+    node->Arguments = vector<string>(n);
+    node->DefaultValues = vector<string>(n);
 
     int index=0;
     for (; s1 != R_NilValue; s1 = CDR(s1))
     {
-        node->argument[index] = CHAR(PRINTNAME(TAG(s1)));
-        node->defaultValue[index++] = constantToString(CAR(s1));
+        node->Arguments[index] = CHAR(PRINTNAME(TAG(s1)));
+        node->DefaultValues[index++] = constantToString(CAR(s1));
     }
-    return node;
+    return unique_ptr<SyntaxNode>(node);
 }
 
 string SyntaxPairlistNode::ToString()
 {
     string result;
-    for(size_t i=0;i<arguments.size();++i)
+    for(size_t i=0;i<Arguments.size();++i)
     {
-        ReplaceStringInPlace(arguments[i], "\\","\\\\");
-        result += formatName(arguments[i]);
+        ReplaceStringInPlace(Arguments[i], "\\","\\\\");
+        result += formatName(Arguments[i]);
 
         if(defaultValues[i] != "")
         {
-            result += "="+defaultValues[i];
+            result += "="+DefaultValues[i];
         }
-        if(i < arguments.size()-1)
+        if(i < Arguments.size()-1)
             result += ",";
     }
     return result;
@@ -38,12 +38,12 @@ string SyntaxPairlistNode::ToString()
 
 unique_ptr<SyntaxNode> SyntaxPairlistNode::Copy()
 {
-    unique_ptr<SyntaxNode> s(new SyntaxPairlistNode());
-    s->parent = nullptr;
-    s->name = name;
-    s->whichChild = whichChild;
-    s->arguments = arguments;
-    s->defaultValues = defaultValues;
-    return s;
+    SyntaxPairlistNode* s = new SyntaxPairlistNode();
+    // s->Parent = nullptr;
+    s->Name = Name;
+    s->WhichChild = WhichChild;
+    s->Arguments = Arguments;
+    s->DefaultValues = DefaultValues;
+    return unique_ptr<SyntaxNode>(s);
 
 }

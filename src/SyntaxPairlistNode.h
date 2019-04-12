@@ -12,8 +12,9 @@
 #include <cstring>
 
 using namespace Rcpp;
-using namespace std;
 using namespace boost;
+using namespace std;
+
 
 class SyntaxPairlistNode : public SyntaxNode
 {
@@ -22,8 +23,8 @@ public:
     //czyli w pairlist, znanej tez jako LISTSXP
     //to pierwsze pole jest potrzebne takze przy wywolaniu funkcji, gdy
     // mamy fun(x=5,y,z=length(x)), przechowujemy tu "x" i "z" na 1 i 3 indeksie
-    vector<string> arguments;
-    vector<string> defaultValues;
+    vector<string> Arguments;
+    vector<string> DefaultValues;
 
     static unique_ptr<SyntaxNode> ConvertLispToSyntaxNode(SEXP s);
     SyntaxPairlistNode() {}

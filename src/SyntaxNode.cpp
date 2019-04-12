@@ -30,6 +30,15 @@ unique_ptr<SyntaxNode> SyntaxNode::ConvertLispToSyntaxNode(SEXP s)
     }
 }
 
+void SyntaxNode::ReplaceStringInPlace(std::string& subject, const std::string& search,
+                          const std::string& replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+         subject.replace(pos, search.length(), replace);
+         pos += replace.length();
+    }
+}
+
 string SyntaxTree::constantToString(SEXP s)
 {
     if (TYPEOF(s) ==  LGLSXP)

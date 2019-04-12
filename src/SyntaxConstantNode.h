@@ -12,8 +12,9 @@
 #include <cstring>
 
 using namespace Rcpp;
-using namespace std;
 using namespace boost;
+using namespace std;
+
 
 class SyntaxConstantNode : public SyntaxNode
 {
@@ -23,4 +24,5 @@ public:
     ~SyntaxConstantNode();
 
     virtual string ToString();
+    virtual unique_ptr<SyntaxNode> Copy();
 };

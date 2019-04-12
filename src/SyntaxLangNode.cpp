@@ -2,16 +2,17 @@
 
 unique_ptr<SyntaxNode> SyntaxLangNode::ConvertLispToSyntaxNode(SEXP s)
 {
-    unique_ptr<SyntaxNode> node(new SyntaxLangNode());
-    node->functionName = getLangName(s);
+    SyntaxLangNode* node = new SyntaxLangNode();
+    
+    node->Name = getLangName(s);
     
     int n = Rf_length(s)-1;
-    if(node->functionName == "function")
+    if(node->Name == "function")
     {
         n--;
     }
-    node->children = vector<unique_ptr<SyntaxNode>>(n);
-    node->argument = vector<string>(n);
+    node->Children = vector<unique_ptr<SyntaxNode>>(n);
+    node->Arguments = vector<string>(n);
     int index = 0;
 
     SEXP t = CDR(s);
@@ -19,14 +20,14 @@ unique_ptr<SyntaxNode> SyntaxLangNode::ConvertLispToSyntaxNode(SEXP s)
     {
         if(TAG(t)!=R_NilValue)
         {
-            node->argument[index] = CHAR(PRINTNAME(TAG(t)));
+            node->Arguments[index] = CHAR(PRINTNAME(TAG(t)));
         }
-        node->children[index] = SyntaxNode::ConvertLispToSyntaxNode(CAR(t));
-        node->children[index]->whichChild = index;
-        node->children[index++]->parent = node;
+        node->Children[index] = SyntaxNode::ConvertLispToSyntaxNode(CAR(t));
+        node->Children[index]->WhichChild = index;
+        node->Children[index++]->Parent.reset(node);
         t = CDR(t);
     }
-    return node;
+    return unique_ptr<SyntaxNode>(node);
 }
 
 string SyntaxLangNode::ToString()
@@ -37,32 +38,32 @@ string SyntaxLangNode::ToString()
         //przykladowo chcemy osiagnac
         //function(a=length(n),b)"{"("fun1"(x),"if"("length"(">"(x,0)),x,"-"(x)),"lapply"(x,function(y)"{"("<-"(z,sin(y)),z)))
         result = "function(";
-        if(!(children[0]->type==type_constant && children[0]->Name=="NULL"))
-            result += children[0]->ToString();
+        if(!(Children[0]->Name=="NULL")) //Children[0]->type==type_constant &&
+            result += Children[0]->ToString();
         result += ")";
-        for(size_t i=1;i<children.size();++i)
+        for(size_t i=1;i<Children.size();++i)
         {
-            result += children[i]->ToString();
-            if(i < children.size()-1) //prawdopodobnie niepotrzebne, funkcja ma tylko jedno dziecko poza argumentami - cialo
+            result += Children[i]->ToString();
+            if(i < Children.size()-1) //prawdopodobnie niepotrzebne, funkcja ma tylko jedno dziecko poza argumentami - cialo
                 result += ",";
         }
     }
     else
     {
         result = "\""+Name+"\"(";
-        for(size_t i=0;i<children.size();++i)
+        for(size_t i=0;i<Children.size();++i)
         {
             // cout << "argument[ " << i << "]" << endl;
-            if(arguments[i]!="")
+            if(Arguments[i]!="")
             {
-                ReplaceStringInPlace(arguments[i], "\\","\\\\");
-                result += formatName(arguments[i])+"=";
+                ReplaceStringInPlace(Arguments[i], "\\","\\\\");
+                result += formatName(Arguments[i])+"=";
             }
-            // cout << "children[ " << i << "]" << endl;
-            if(children[i] != nullptr)
-                result += children[i]->ToString();
-            // cout << "po children[ " << i << "]" << endl;
-            if(i < children.size()-1)
+            // cout << "Children[ " << i << "]" << endl;
+            if(Children[i] != nullptr)
+                result += Children[i]->ToString();
+            // cout << "po Children[ " << i << "]" << endl;
+            if(i < Children.size()-1)
                 result += ",";
         }
         result += ")";
@@ -73,21 +74,25 @@ string SyntaxLangNode::ToString()
 
 unique_ptr<SyntaxNode> SyntaxLangNode::Copy()
 {
-    unique_ptr<SyntaxNode> s(new SyntaxLangNode());
-    s->parent = nullptr;
-    s->name = name;
-    s->whichChild = whichChild;
-    s->arguments = arguments;
-    return s;
+    SyntaxLangNode* s = new SyntaxLangNode();
+    // s->Parent = nullptr;
+    s->Name = Name;
+    s->WhichChild = WhichChild;
+    s->Arguments = Arguments;
+    s->Children = vector<unique_ptr<SyntaxNode>>(Children.size());
+    for (size_t i = 0; i < Children.size(); i++) {
+        s->Children[i] = Children[i]->Copy();
+    }
+    return unique_ptr<SyntaxNode>(s);
 
 }
 
 void SyntaxLangNode::RepairTree()
 {
-  for(size_t i=0; i<children.size();i++)
+  for(size_t i=0; i<Children.size();i++)
   {
-    children[i]->whichChild = i;
-    children[i]->parent = this;
-    children[i]->RepairTree();
+    Children[i]->WhichChild = i;
+    Children[i]->Parent = this;
+    Children[i]->RepairTree();
   }
 }

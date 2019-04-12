@@ -10,10 +10,12 @@
 #include <Rcpp.h>
 #include <cwchar>
 #include <cstring>
+#include <memory>
 
 using namespace Rcpp;
-using namespace std;
 using namespace boost;
+using namespace std;
+
 
 class SyntaxTree
 {

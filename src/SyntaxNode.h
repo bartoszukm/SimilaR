@@ -9,21 +9,24 @@
 #include <Rcpp.h>
 #include <cwchar>
 #include <cstring>
+#include <memory>
 
 using namespace Rcpp;
-using namespace std;
 using namespace boost;
+using namespace std;
 
 class SyntaxNode
 {
 protected:
-    string formatName(Rcpp::String x);
-    int isValidName(const char *name);
-    const char* getLangName(SEXP s);
-    string constantToString(SEXP s);
+    static string formatName(Rcpp::String x);
+    static int isValidName(const char *name);
+    static const char* getLangName(SEXP s);
+    static string constantToString(SEXP s);
+    static void ReplaceStringInPlace(std::string& subject, const std::string& search,
+                          const std::string& replace);
 
 public:
-    weak_ptr<SyntaxNode> Parent;
+    std::weak_ptr<SyntaxNode> Parent;
 
     string Name;
     int WhichChild;
