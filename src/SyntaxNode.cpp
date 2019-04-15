@@ -1,14 +1,46 @@
 #include "SyntaxNode.h"
+#include "SyntaxConstantNode.h"
+#include "SyntaxLangNode.h"
+#include "SyntaxPairlistNode.h"
+#include "SyntaxSymbolNode.h"
 
+struct {
+    const char *name;
+    int token;
+}
+
+static keywords[] = {
+    { "NULL",	    0 },
+    { "NA",	    0  },
+    { "TRUE",	    0  },
+    { "FALSE",	    0  },
+    { "Inf",	    0  },
+    { "NaN",	    0  },
+    { "NA_integer_", 0  },
+    { "NA_real_",    0  },
+    { "NA_character_", 0  },
+    { "NA_complex_", 0  },
+    { "function",   0   },
+    { "while",	    0      },
+    { "repeat",	    0     },
+    { "for",	    0	       },
+    { "if",	    0	       },
+    { "in",	    0	       },
+    { "else",	    0       },
+    { "next",	    0       },
+    { "break",	    0      },
+    { "...",	    0     },
+    { 0,	    0	       }
+};
 
 void SyntaxNode::RepairTree()
 {
 }
 
 
-SyntaxNode::~SyntaxNode()
-{
-}
+// SyntaxNode::~SyntaxNode()
+// {
+// }
 
 unique_ptr<SyntaxNode> SyntaxNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -39,7 +71,7 @@ void SyntaxNode::ReplaceStringInPlace(std::string& subject, const std::string& s
     }
 }
 
-string SyntaxTree::constantToString(SEXP s)
+string SyntaxNode::constantToString(SEXP s)
 {
     if (TYPEOF(s) ==  LGLSXP)
     {

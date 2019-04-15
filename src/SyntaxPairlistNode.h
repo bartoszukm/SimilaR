@@ -1,3 +1,6 @@
+#ifndef SYNTAXPAIRLISTNODE_H
+#define SYNTAXPAIRLISTNODE_H
+
 #include "SyntaxNode.h"
 #include "common.h"
 #include "graphUtils.h"
@@ -15,7 +18,6 @@ using namespace Rcpp;
 using namespace boost;
 using namespace std;
 
-
 class SyntaxPairlistNode : public SyntaxNode
 {
 public:
@@ -27,9 +29,11 @@ public:
     vector<string> DefaultValues;
 
     static unique_ptr<SyntaxNode> ConvertLispToSyntaxNode(SEXP s);
-    SyntaxPairlistNode() {}
-    ~SyntaxPairlistNode() {};
+    // SyntaxPairlistNode() {}
+    // ~SyntaxPairlistNode() {}
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef SYNTAXCONSTANTNODE_H
+#define SYNTAXCONSTANTNODE_H
+
 #include "SyntaxNode.h"
 #include "common.h"
 #include "graphUtils.h"
@@ -15,14 +18,17 @@ using namespace Rcpp;
 using namespace boost;
 using namespace std;
 
+class SyntaxNode;
 
 class SyntaxConstantNode : public SyntaxNode
 {
 public:
     static unique_ptr<SyntaxNode> ConvertLispToSyntaxNode(SEXP s);
-    SyntaxConstantNode() {}
-    ~SyntaxConstantNode();
+    // SyntaxConstantNode() {}
+    // ~SyntaxConstantNode();
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
 };
+
+#endif

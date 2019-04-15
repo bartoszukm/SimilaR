@@ -1,5 +1,10 @@
+#ifndef SYNTAXNODE_H
+#define SYNTAXNODE_H
+
+
 #include "common.h"
 #include "graphUtils.h"
+#include "boost/lexical_cast.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -26,14 +31,14 @@ protected:
                           const std::string& replace);
 
 public:
-    std::weak_ptr<SyntaxNode> Parent;
+    SyntaxNode* Parent;
 
     string Name;
     int WhichChild;
 
     static unique_ptr<SyntaxNode> ConvertLispToSyntaxNode(SEXP s);
-    SyntaxNode() {}
-    ~SyntaxNode();
+    // SyntaxNode() {}
+    // ~SyntaxNode();
 
     virtual string ToString() = 0;
 
@@ -41,3 +46,5 @@ public:
     virtual void RepairTree();
     virtual unique_ptr<SyntaxNode> Copy() = 0;
 };
+
+#endif

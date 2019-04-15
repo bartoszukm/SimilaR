@@ -1,3 +1,6 @@
+#ifndef SYNTAXTREE_H
+#define SYNTAXTREE_H
+
 #include "common.h"
 #include "SyntaxNode.h"
 #include "graphUtils.h"
@@ -22,9 +25,9 @@ class SyntaxTree
 private:
     unique_ptr<SyntaxNode> root;
 
-    const char* getLangName(SEXP s);
-    SyntaxNode* processFunction(SEXP s);
-    string constantToString(SEXP s);
+    // const char* getLangName(SEXP s);
+    // SyntaxNode* processFunction(SEXP s);
+    // string constantToString(SEXP s);
 public:
     // int nr;
     // static int numer;
@@ -32,14 +35,16 @@ public:
     SyntaxTree();
     SyntaxTree(SEXP g);
     
-    ~SyntaxTree();
+    // ~SyntaxTree();
 
     string ToString();
     void RepairTree();
 
-    list<shared_ptr<SyntaxNode>> GetListOfNodes();
+    list<SyntaxNode*> GetListOfNodes();
     int GetNodesCount();
 
     unique_ptr<SyntaxTree> Copy();
     string GetFunctionName();
 };
+
+#endif

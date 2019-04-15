@@ -1,3 +1,6 @@
+#ifndef SYNTAXLANGNODE_H
+#define SYNTAXLANGNODE_H
+
 #include "common.h"
 #include "graphUtils.h"
 #include "SyntaxNode.h"
@@ -15,7 +18,6 @@ using namespace Rcpp;
 using namespace boost;
 using namespace std;
 
-
 class SyntaxLangNode : public SyntaxNode
 {
 public:
@@ -28,10 +30,12 @@ public:
     vector<string> Arguments;
 
     static unique_ptr<SyntaxNode> ConvertLispToSyntaxNode(SEXP s);
-    SyntaxLangNode() {}
-    ~SyntaxLangNode() {};
+    // SyntaxLangNode() {}
+    // ~SyntaxLangNode() {}
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
     virtual void RepairTree();
 };
+
+#endif

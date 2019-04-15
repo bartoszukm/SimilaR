@@ -4,13 +4,14 @@ unique_ptr<SyntaxNode> SyntaxSymbolNode::ConvertLispToSyntaxNode(SEXP s)
 {
     SyntaxSymbolNode* node = new SyntaxSymbolNode();
     node->Name = CHAR(PRINTNAME(s));
+    node->Parent = nullptr;
     return unique_ptr<SyntaxNode>(node);
 }
 
 string SyntaxSymbolNode::ToString()
 {
     // to jest obsluga przypadku arg.dimnames[, i] <- dimnames(m), chodzi o pierwszy argument w [,i]
-    return functionName != "" ? formatName(functionName) : functionName;
+    return Name != "" ? formatName(Name) : Name;
 }
 
 unique_ptr<SyntaxNode> SyntaxSymbolNode::Copy()

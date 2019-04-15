@@ -4,7 +4,8 @@ unique_ptr<SyntaxNode> SyntaxConstantNode::ConvertLispToSyntaxNode(SEXP s)
 {
     SyntaxConstantNode* node = new SyntaxConstantNode();
     node->Name = SyntaxNode::constantToString(s);
-
+    node->Parent = nullptr;
+    
     if(node->Name == "-2147483648")
         node->Name = "Inf";
     if(node->Name == "nan")
@@ -20,7 +21,7 @@ string SyntaxConstantNode::ToString()
 unique_ptr<SyntaxNode> SyntaxConstantNode::Copy()
 {
     SyntaxConstantNode* s = new SyntaxConstantNode();
-    // s->Parent = nullptr;
+    s->Parent = nullptr;
     s->Name = Name;
     s->WhichChild = WhichChild;
     return unique_ptr<SyntaxNode>(s);

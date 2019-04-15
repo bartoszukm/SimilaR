@@ -15,6 +15,7 @@ unique_ptr<SyntaxNode> SyntaxPairlistNode::ConvertLispToSyntaxNode(SEXP s)
         node->Arguments[index] = CHAR(PRINTNAME(TAG(s1)));
         node->DefaultValues[index++] = constantToString(CAR(s1));
     }
+    node->Parent = nullptr;
     return unique_ptr<SyntaxNode>(node);
 }
 
@@ -26,7 +27,7 @@ string SyntaxPairlistNode::ToString()
         ReplaceStringInPlace(Arguments[i], "\\","\\\\");
         result += formatName(Arguments[i]);
 
-        if(defaultValues[i] != "")
+        if(DefaultValues[i] != "")
         {
             result += "="+DefaultValues[i];
         }
@@ -39,7 +40,7 @@ string SyntaxPairlistNode::ToString()
 unique_ptr<SyntaxNode> SyntaxPairlistNode::Copy()
 {
     SyntaxPairlistNode* s = new SyntaxPairlistNode();
-    // s->Parent = nullptr;
+    s->Parent = nullptr;
     s->Name = Name;
     s->WhichChild = WhichChild;
     s->Arguments = Arguments;

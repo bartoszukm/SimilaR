@@ -24,9 +24,10 @@ unique_ptr<SyntaxNode> SyntaxLangNode::ConvertLispToSyntaxNode(SEXP s)
         }
         node->Children[index] = SyntaxNode::ConvertLispToSyntaxNode(CAR(t));
         node->Children[index]->WhichChild = index;
-        node->Children[index++]->Parent.reset(node);
+        node->Children[index++]->Parent = node;
         t = CDR(t);
     }
+    node->Parent = nullptr;
     return unique_ptr<SyntaxNode>(node);
 }
 
@@ -75,7 +76,7 @@ string SyntaxLangNode::ToString()
 unique_ptr<SyntaxNode> SyntaxLangNode::Copy()
 {
     SyntaxLangNode* s = new SyntaxLangNode();
-    // s->Parent = nullptr;
+    s->Parent = nullptr;
     s->Name = Name;
     s->WhichChild = WhichChild;
     s->Arguments = Arguments;
