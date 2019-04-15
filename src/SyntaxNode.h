@@ -5,6 +5,7 @@
 #include "common.h"
 #include "graphUtils.h"
 #include "boost/lexical_cast.hpp"
+#include "Context.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -19,6 +20,8 @@
 using namespace Rcpp;
 using namespace boost;
 using namespace std;
+
+class NodeProcessorWhile;
 
 class SyntaxNode
 {
@@ -45,6 +48,10 @@ public:
     //polega na ustawieniu odpowiednio parent i whichchild
     virtual void RepairTree();
     virtual unique_ptr<SyntaxNode> Copy() = 0;
+
+
+    virtual Context ProcessWhile(NodeProcessorWhile& processor,
+                                 const Context& context) = 0;
 };
 
 #endif

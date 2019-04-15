@@ -1,4 +1,5 @@
 #include "SyntaxPairlistNode.h"
+#include "NodeProcessorWhile.h"
 
 unique_ptr<SyntaxNode> SyntaxPairlistNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -47,4 +48,10 @@ unique_ptr<SyntaxNode> SyntaxPairlistNode::Copy()
     s->DefaultValues = DefaultValues;
     return unique_ptr<SyntaxNode>(s);
 
+}
+
+Context SyntaxPairlistNode::ProcessWhile(NodeProcessorWhile& processor,
+                                         const Context& context)
+{
+    return processor.ProcessNext(this, context);
 }

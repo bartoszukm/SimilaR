@@ -1,4 +1,5 @@
 #include "SyntaxSymbolNode.h"
+#include "NodeProcessorWhile.h"
 
 unique_ptr<SyntaxNode> SyntaxSymbolNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -21,4 +22,11 @@ unique_ptr<SyntaxNode> SyntaxSymbolNode::Copy()
     s->Name = Name;
     s->WhichChild = WhichChild;
     return unique_ptr<SyntaxNode>(s);
+}
+
+
+Context SyntaxSymbolNode::ProcessWhile(NodeProcessorWhile& processor,
+                                         const Context& context)
+{
+    return processor.ProcessNext(this, context);
 }

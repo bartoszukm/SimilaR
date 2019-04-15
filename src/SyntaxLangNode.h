@@ -18,6 +18,8 @@ using namespace Rcpp;
 using namespace boost;
 using namespace std;
 
+class NodeProcessorWhile;
+
 class SyntaxLangNode : public SyntaxNode
 {
 public:
@@ -36,6 +38,9 @@ public:
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
     virtual void RepairTree();
+
+    virtual Context ProcessWhile(NodeProcessorWhile& processor,
+                                 const Context& context);
 };
 
 #endif

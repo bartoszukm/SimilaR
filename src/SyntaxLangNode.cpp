@@ -1,4 +1,5 @@
 #include "SyntaxLangNode.h"
+#include "NodeProcessorWhile.h"
 
 unique_ptr<SyntaxNode> SyntaxLangNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -96,4 +97,14 @@ void SyntaxLangNode::RepairTree()
     Children[i]->Parent = this;
     Children[i]->RepairTree();
   }
+}
+
+
+Context SyntaxLangNode::ProcessWhile(NodeProcessorWhile& processor,
+                                         const Context& context)
+{
+    if(Name != "while")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessWhile(this, context);
 }

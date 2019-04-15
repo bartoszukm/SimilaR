@@ -2,6 +2,7 @@
 #define SYNTAXCONSTANTNODE_H
 
 #include "SyntaxNode.h"
+#include "NodeProcessorWhile.h"
 #include "common.h"
 #include "graphUtils.h"
 #include <stdlib.h>
@@ -29,6 +30,9 @@ public:
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
+
+    virtual Context ProcessWhile(NodeProcessorWhile& processor,
+                                 const Context& context);
 };
 
 #endif
