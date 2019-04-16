@@ -22,6 +22,8 @@ using namespace boost;
 using namespace std;
 
 class NodeProcessorWhile;
+class NodeProcessorFor;
+class SyntaxLangNode;
 
 class SyntaxNode
 {
@@ -51,7 +53,12 @@ public:
 
 
     virtual Context ProcessWhile(NodeProcessorWhile& processor,
-                                 const Context& context) = 0;
+                                 const Context& context);
+    virtual Context ProcessFor(NodeProcessorFor& processor,
+                                 const Context& context);
+    virtual Context ProcessForPredicate(NodeProcessorFor& processor,
+                                        const SyntaxLangNode& forNode,
+                                        const Context& context);
 };
 
 #endif

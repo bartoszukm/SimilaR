@@ -27,10 +27,3 @@ unique_ptr<SyntaxNode> SyntaxConstantNode::Copy()
     s->WhichChild = WhichChild;
     return unique_ptr<SyntaxNode>(s);
 }
-
-
-Context SyntaxConstantNode::ProcessWhile(NodeProcessorWhile& processor,
-                                         const Context& context)
-{
-    return processor.ProcessNext(this, context);
-}

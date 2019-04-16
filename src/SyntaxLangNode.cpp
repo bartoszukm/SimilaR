@@ -108,3 +108,29 @@ Context SyntaxLangNode::ProcessWhile(NodeProcessorWhile& processor,
 
     return processor.ProcessWhile(this, context);
 }
+
+Context SyntaxLangNode::ProcessFor(NodeProcessorWhile& processor,
+                                         const Context& context)
+{
+    if(Name != "for")
+        return processor.ProcessNext(this, context);
+
+    return children[1]->ProcessForPredicate(processor, *this, context);
+}
+
+Context ProcessForPredicate(NodeProcessorFor& processor,
+                                        const SyntaxLangNode& forNode,
+                                        const Context& context)
+{
+    //@TODO: Name przepuscic przez getCanonicalName
+    if(Name != "seq" && Name != ":" && Name != "seq_len" && Name != "seq_along")
+    {
+        return processor.ProcessForeach(forNode, context);
+    }
+    else
+    {
+        return processor.ProcessFor(forNode, context);
+    }
+    
+}
+

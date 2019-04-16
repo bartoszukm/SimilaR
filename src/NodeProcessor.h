@@ -7,6 +7,7 @@
 #include "SyntaxNode.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <tuple>
 
 using namespace Rcpp;
 using namespace std;
@@ -16,9 +17,11 @@ class CDGCreator;
 
 class NodeProcessor
 {
-private:
+protected:
 CDGCreator& CDG;
 unique_ptr<NodeProcessor> Next;
+
+string concatenateStringList(const list<string>& l);
 
 public:
 // NodeProcessor();

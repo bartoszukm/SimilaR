@@ -41,6 +41,11 @@ public:
 
     virtual Context ProcessWhile(NodeProcessorWhile& processor,
                                  const Context& context);
+    virtual Context ProcessFor(NodeProcessorWhile& processor,
+                                         const Context& context);
+    virtual Context ProcessForPredicate(NodeProcessorFor& processor,
+                                        const SyntaxLangNode& forNode,
+                                        const Context& context);
 };
 
 #endif

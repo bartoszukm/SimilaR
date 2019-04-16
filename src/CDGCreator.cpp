@@ -13,10 +13,25 @@ GraphType CDGCreator::CreateCDG(SyntaxNode* s)
     return g;
 } 
 
-unique_ptr<NodeProcessor> CDGCreator::GetProcessors()
+unique_ptr<NodeProcessor> CDGCreator::GetProcessors(bool isLastInstruction)
 {
     NodeProcessor* whileProcessor = new NodeProcessorWhile(*this);
     whileProcessor->SetNext(new NodeProcessorWrong(*this));
 
     return unique_ptr<NodeProcessor>(whileProcessor);
+}
+
+GraphType& CDGCreator::GetGraph()
+{
+    return g;
+}
+
+map<string, string>& CDGCreator::GetAliasesDictionary()
+{
+    return variableName2variableName;
+}
+
+int& CDGCreator::GetGlobalCallNumber()
+{
+    return globalCallNumber;
 }

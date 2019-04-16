@@ -23,3 +23,11 @@ Context NodeProcessor::ProcessNext(SyntaxNode* n, const Context& context)
 {
     return NodeProcessor::Process(n, context);
 }
+
+string NodeProcessor::concatenateStringList(const list<string>& l)
+{
+    string result;
+    for (std::list<string>::const_iterator it = l.begin(); it != l.end(); it++)
+        result = result + *it;
+    return result;
+}

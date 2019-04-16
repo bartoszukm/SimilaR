@@ -30,9 +30,6 @@ public:
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
-
-    virtual Context ProcessWhile(NodeProcessorWhile& processor,
-                                 const Context& context);
 };
 
 #endif

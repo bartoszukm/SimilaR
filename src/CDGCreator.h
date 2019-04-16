@@ -17,12 +17,17 @@ class CDGCreator
 {
 private:
 GraphType g;
-
+map<string, string> variableName2variableName;
+int globalCallNumber;
 
 public:
 GraphType CreateCDG(SyntaxNode* s); 
 
-unique_ptr<NodeProcessor> GetProcessors();
+unique_ptr<NodeProcessor> GetProcessors(bool isLastInstruction=false);
+GraphType& GetGraph();
+map<string, string>& GetAliasesDictionary();
+int& GetGlobalCallNumber();
+
 
 };
 

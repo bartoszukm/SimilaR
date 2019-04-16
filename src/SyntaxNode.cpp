@@ -250,3 +250,22 @@ string SyntaxNode::formatName(Rcpp::String x) {
       snprintf(buf, 256, "`%s`", xs);
    return string(buf);
 }
+
+Context ProcessWhile(NodeProcessorWhile& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context ProcessFor(NodeProcessorFor& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+virtual Context ProcessForPredicate(NodeProcessorFor& processor,
+                                        const SyntaxLangNode& forNode,
+                                        const Context& context)
+{
+    return processor.ProcessForeach(forNode, context);
+}

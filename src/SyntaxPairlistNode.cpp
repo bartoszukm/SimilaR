@@ -49,9 +49,3 @@ unique_ptr<SyntaxNode> SyntaxPairlistNode::Copy()
     return unique_ptr<SyntaxNode>(s);
 
 }
-
-Context SyntaxPairlistNode::ProcessWhile(NodeProcessorWhile& processor,
-                                         const Context& context)
-{
-    return processor.ProcessNext(this, context);
-}

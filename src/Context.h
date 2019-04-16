@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-class Context
+struct Context
 {
     vertex_t FlowVertex;
     vertex_t ControlVertex;
