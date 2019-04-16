@@ -46,6 +46,8 @@ public:
     virtual Context ProcessForPredicate(NodeProcessorFor& processor,
                                         const SyntaxLangNode& forNode,
                                         const Context& context);
+    virtual Context ProcessIf(NodeProcessorIf& processor,
+                                 const Context& context);
 };
 
 #endif

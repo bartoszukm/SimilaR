@@ -263,9 +263,15 @@ Context ProcessFor(NodeProcessorFor& processor,
     return processor.ProcessNext(this, context);
 }
 
-virtual Context ProcessForPredicate(NodeProcessorFor& processor,
+Context ProcessForPredicate(NodeProcessorFor& processor,
                                         const SyntaxLangNode& forNode,
                                         const Context& context)
 {
     return processor.ProcessForeach(forNode, context);
+}
+
+Context ProcessIf(NodeProcessorIf& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
 }

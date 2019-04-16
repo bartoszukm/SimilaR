@@ -134,3 +134,12 @@ Context ProcessForPredicate(NodeProcessorFor& processor,
     
 }
 
+Context SyntaxLangNode::ProcessIf(NodeProcessorIf& processor,
+                                         const Context& context)
+{
+    if(Name != "if")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessIf(this, context);
+}
+

@@ -58,6 +58,7 @@ Context NodeProcessorWhile::ProcessWhile(SyntaxLangNode* whileNode, const Contex
         g[node].uses = predicateContext.Uses;
 
         myContext.FlowVertex = node;
+        myContext.ControlVertex = node;
         Context body_context = processor->Process(whileNode->Children[1], myContext);
 
         makeStructuredTransfersOfControlForLoop(node, &structuredTransfersOfControl); /// ???
