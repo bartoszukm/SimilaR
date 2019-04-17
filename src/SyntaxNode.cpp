@@ -118,7 +118,8 @@ string SyntaxNode::constantToString(SEXP s)
     }
     else if(TYPEOF(s) ==  LANGSXP)
     {
-        Rcpp::Function myprint("myprint");
+        Environment ns = Environment::namespace_env("SimilaR" ) ;
+        Rcpp::Function myprint(ns["myprint"]);
         string str;
         CharacterVector cv = as<CharacterVector>(myprint(s));
         for (size_t i = 0; i < cv.size(); i++) {
@@ -136,7 +137,8 @@ string SyntaxNode::constantToString(SEXP s)
     {
         // cout << "cos poszlo nie tak! nie znaleziono typu!" << endl;
         // return string("");
-        Rcpp::Function myprint("myprint");
+        Environment ns = Environment::namespace_env("SimilaR" ) ;
+        Rcpp::Function myprint(ns["myprint"]);
         string str;
         CharacterVector cv = as<CharacterVector>(myprint(s));
         for (size_t i = 0; i < cv.size(); i++) {
@@ -294,7 +296,19 @@ Context SyntaxNode::ProcessBrace(NodeProcessorBrace& processor,
     return processor.ProcessNext(this, context);
 }
 
-Context ProcessParenthesis(NodeProcessorParenthesis& processor,
+Context SyntaxNode::ProcessParenthesis(NodeProcessorParenthesis& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context SyntaxNode::ProcessCall(NodeProcessorCall& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context SyntaxNode::ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);

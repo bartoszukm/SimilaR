@@ -72,6 +72,10 @@ public:
                                  const Context& context);
     virtual Context ProcessParenthesis(NodeProcessorParenthesis& processor,
                                  const Context& context);
+    virtual Context ProcessCall(NodeProcessorCall& processor,
+                                 const Context& context);
+    virtual Context ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& processor,
+                                 const Context& context);
 };
 
 #endif

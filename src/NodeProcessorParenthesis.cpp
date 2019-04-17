@@ -10,7 +10,7 @@ NodeProcessorParenthesis::NodeProcessorParenthesis(CDGCreator& cdg, vertex_t* en
 
 Context NodeProcessorParenthesis::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessParenthesis(*this, context);
+    return n->ProcessParenthesis(*this, context);
 }
 
 Context NodeProcessorParenthesis::ProcessParenthesis(SyntaxLangNode* parenthesisNode, const Context& context)

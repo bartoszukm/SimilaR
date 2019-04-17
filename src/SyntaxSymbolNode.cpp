@@ -23,3 +23,10 @@ unique_ptr<SyntaxNode> SyntaxSymbolNode::Copy()
     s->WhichChild = WhichChild;
     return unique_ptr<SyntaxNode>(s);
 }
+
+Context SyntaxSymbolNode::ProcessSymbolOrConstant(
+    NodeProcessorSymbolOrConstant& processor,
+    const Context& context)
+{
+    processor->ProcessSymbol(this, context);
+}

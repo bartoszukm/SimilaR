@@ -10,7 +10,7 @@ NodeProcessorBrace::NodeProcessorBrace(CDGCreator& cdg, vertex_t* entry) : NodeP
 
 Context NodeProcessorBrace::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessBrace(*this, context);
+    return n->ProcessBrace(*this, context);
 }
 
 Context NodeProcessorBrace::ProcessBrace(SyntaxLangNode* braceNode, const Context& context)

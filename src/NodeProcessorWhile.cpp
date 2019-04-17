@@ -9,7 +9,7 @@ NodeProcessorWhile::NodeProcessorWhile(CDGCreator& cdg) : NodeProcessor(cdg)
 
 Context NodeProcessorWhile::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessWhile(*this, context);
+    return n->ProcessWhile(*this, context);
 }
 
 Context NodeProcessorWhile::ProcessWhile(SyntaxLangNode* whileNode, const Context& context)

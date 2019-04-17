@@ -10,7 +10,7 @@ NodeProcessorFor::NodeProcessorFor(CDGCreator& cdg) : NodeProcessor(cdg)
 
 Context NodeProcessorFor::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessFor(*this, context);
+    return n->ProcessFor(*this, context);
 }
 
 Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& context)

@@ -10,7 +10,7 @@ NodeProcessorFunction::NodeProcessorFunction(CDGCreator& cdg, vertex_t* entry) :
 
 Context NodeProcessorFunction::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessFunction(*this, context);
+    return n->ProcessFunction(*this, context);
 }
 
 Context NodeProcessorFunction::ProcessFunction(SyntaxLangNode* functionNode, const Context& context)

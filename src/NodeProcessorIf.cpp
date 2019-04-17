@@ -10,7 +10,7 @@ NodeProcessorIf::NodeProcessorIf(CDGCreator& cdg) : NodeProcessor(cdg)
 
 Context NodeProcessorIf::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessIf(*this, context);
+    return n->ProcessIf(*this, context);
 }
 
 Context NodeProcessorIf::ProcessIf(SyntaxLangNode* ifNode, const Context& context)

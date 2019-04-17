@@ -161,11 +161,17 @@ Context SyntaxLangNode::ProcessBrace(NodeProcessorBrace& processor,
     return processor.ProcessBrace(this, context);
 }
 
-virtual Context ProcessParenthesis(NodeProcessorParenthesis& processor,
+Context SyntaxLangNode::ProcessParenthesis(NodeProcessorParenthesis& processor,
                                  const Context& context)
 {
     if(Name != "(")
         return processor.ProcessNext(this, context);
 
     return processor.ProcessParenthesis(this, context);
+}
+
+Context SyntaxLangNode::ProcessCall(NodeProcessorCall& processor,
+                                 const Context& context)
+{
+    return processor.ProcessCall(this, context);
 }

@@ -10,7 +10,7 @@ NodeProcessorFunctionParameters::NodeProcessorFunctionParameters(CDGCreator& cdg
 
 Context NodeProcessorFunctionParameters::Process(SyntaxNode* n, const Context& context)
 {
-    n->ProcessFunctionParameters(*this, context);
+    return n->ProcessFunctionParameters(*this, context);
 }
 
 Context NodeProcessorFunctionParameters::ProcessFunctionParameters(SyntaxPairlistNode* parametersNode, const Context& context)

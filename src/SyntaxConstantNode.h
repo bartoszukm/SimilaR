@@ -30,6 +30,9 @@ public:
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
+
+    virtual Context ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& processor,
+                                 const Context& context);
 };
 
 #endif
