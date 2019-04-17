@@ -34,6 +34,9 @@ public:
 
     virtual string ToString();
     virtual unique_ptr<SyntaxNode> Copy();
+
+    virtual Context ProcessFunctionParameters(NodeProcessorFunctionParameters& processor,
+                                 const Context& context);
 };
 
 #endif

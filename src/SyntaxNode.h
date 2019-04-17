@@ -24,6 +24,8 @@ using namespace std;
 class NodeProcessorWhile;
 class NodeProcessorFor;
 class NodeProcessorIf;
+class NodeProcessorFunction;
+class NodeProcessorFunctionParameters;
 class SyntaxLangNode;
 
 class SyntaxNode
@@ -61,6 +63,14 @@ public:
                                         const SyntaxLangNode& forNode,
                                         const Context& context);
     virtual Context ProcessIf(NodeProcessorIf& processor,
+                                 const Context& context);
+    virtual Context ProcessFunction(NodeProcessorFunction& processor,
+                                 const Context& context);
+    virtual Context ProcessFunctionParameters(NodeProcessorFunctionParameters& processor,
+                                 const Context& context);
+    virtual Context ProcessBrace(NodeProcessorBrace& processor,
+                                 const Context& context);
+    virtual Context ProcessParenthesis(NodeProcessorParenthesis& processor,
                                  const Context& context);
 };
 

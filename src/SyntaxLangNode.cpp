@@ -118,7 +118,7 @@ Context SyntaxLangNode::ProcessFor(NodeProcessorWhile& processor,
     return children[1]->ProcessForPredicate(processor, *this, context);
 }
 
-Context ProcessForPredicate(NodeProcessorFor& processor,
+Context SyntaxLangNode::ProcessForPredicate(NodeProcessorFor& processor,
                                         const SyntaxLangNode& forNode,
                                         const Context& context)
 {
@@ -143,3 +143,29 @@ Context SyntaxLangNode::ProcessIf(NodeProcessorIf& processor,
     return processor.ProcessIf(this, context);
 }
 
+Context SyntaxLangNode::ProcessFunction(NodeProcessorFunction& processor,
+                                 const Context& context)
+{
+    if(Name != "function")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessFunction(this, context);
+}
+
+Context SyntaxLangNode::ProcessBrace(NodeProcessorBrace& processor,
+                                 const Context& context)
+{
+    if(Name != "{")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessBrace(this, context);
+}
+
+virtual Context ProcessParenthesis(NodeProcessorParenthesis& processor,
+                                 const Context& context)
+{
+    if(Name != "(")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessParenthesis(this, context);
+}

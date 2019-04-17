@@ -2,7 +2,7 @@
 #include "CDGCreator.h"
 #include "SyntaxLangNode.h"
 
-// NodeProcessorIf::NodeProcessorWhile() : base()
+// NodeProcessorIf::NodeProcessorIf() : base()
 // {}
 
 NodeProcessorIf::NodeProcessorIf(CDGCreator& cdg) : NodeProcessor(cdg)
@@ -13,7 +13,7 @@ Context NodeProcessorIf::Process(SyntaxNode* n, const Context& context)
     n->ProcessIf(*this, context);
 }
 
-Context NodeProcessorWhile::ProcessIf(SyntaxLangNode* ifNode, const Context& context)
+Context NodeProcessorIf::ProcessIf(SyntaxLangNode* ifNode, const Context& context)
 {
     GraphType& g = CDG.GetGraph();
     Context myContext;

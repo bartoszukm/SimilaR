@@ -251,26 +251,50 @@ string SyntaxNode::formatName(Rcpp::String x) {
    return string(buf);
 }
 
-Context ProcessWhile(NodeProcessorWhile& processor,
+Context SyntaxNode::ProcessWhile(NodeProcessorWhile& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);
 }
 
-Context ProcessFor(NodeProcessorFor& processor,
+Context SyntaxNode::ProcessFor(NodeProcessorFor& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);
 }
 
-Context ProcessForPredicate(NodeProcessorFor& processor,
+Context SyntaxNode::ProcessForPredicate(NodeProcessorFor& processor,
                                         const SyntaxLangNode& forNode,
                                         const Context& context)
 {
     return processor.ProcessForeach(forNode, context);
 }
 
-Context ProcessIf(NodeProcessorIf& processor,
+Context SyntaxNode::ProcessIf(NodeProcessorIf& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context SyntaxNode::ProcessFunction(NodeProcessorFunction& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context SyntaxNode::ProcessFunctionParameters(NodeProcessorFunctionParameters& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context SyntaxNode::ProcessBrace(NodeProcessorBrace& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+Context ProcessParenthesis(NodeProcessorParenthesis& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);

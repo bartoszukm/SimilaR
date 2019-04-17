@@ -1,5 +1,5 @@
-#ifndef NODEPROCESSORFOR_H
-#define NODEPROCESSORFOR_H
+#ifndef NODEPROCESSORPARENTHESIS_H
+#define NODEPROCESSORPARENTHESIS_H
 
 #include "common.h"
 #include "graphUtils.h"
@@ -13,20 +13,16 @@ using namespace boost;
 
 class SyntaxLangNode;
 
-class NodeProcessorIf : public NodeProcessor
+class NodeProcessorParenthesis : public NodeProcessor
 {
-// vertex_t node;
-// string gen;
-// SyntaxLangNode *ifNode;
-// unique_ptr<NodeProcessor> processor;
 
 public:
-// NodeProcessorIf();
-NodeProcessorIf(CDGCreator& cdg);
+// NodeProcessorParenthesis();
+NodeProcessorParenthesis(CDGCreator& cdg);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 
-Context ProcessIf(SyntaxLangNode* n,
+Context ProcessParenthesis(SyntaxLangNode* n,
                     const Context& context);                 
 };
 

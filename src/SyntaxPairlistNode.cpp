@@ -47,5 +47,11 @@ unique_ptr<SyntaxNode> SyntaxPairlistNode::Copy()
     s->Arguments = Arguments;
     s->DefaultValues = DefaultValues;
     return unique_ptr<SyntaxNode>(s);
+}
 
+virtual Context SyntaxPairlistNode::ProcessFunctionParameters(
+    NodeProcessorFunctionParameters& processor,
+    const Context& context)
+{
+    return processor.ProcessFunctionParameters(this, context);
 }

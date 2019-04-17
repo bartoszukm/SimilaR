@@ -48,6 +48,12 @@ public:
                                         const Context& context);
     virtual Context ProcessIf(NodeProcessorIf& processor,
                                  const Context& context);
+    virtual Context ProcessFunction(NodeProcessorFunction& processor,
+                                 const Context& context);
+    virtual Context ProcessBrace(NodeProcessorBrace& processor,
+                                 const Context& context);
+    virtual Context ProcessParenthesis(NodeProcessorParenthesis& processor,
+                                 const Context& context);
 };
 
 #endif
