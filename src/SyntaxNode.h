@@ -76,6 +76,10 @@ public:
                                  const Context& context);
     virtual Context ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& processor,
                                  const Context& context);
+    virtual Context ProcessBreak(NodeProcessorCall& processor,
+                                 const Context& context);
+    virtual Context ProcessNext(NodeProcessorCall& processor,
+                                 const Context& context);
 };
 
 #endif

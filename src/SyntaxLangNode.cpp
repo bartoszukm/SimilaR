@@ -175,3 +175,21 @@ Context SyntaxLangNode::ProcessCall(NodeProcessorCall& processor,
 {
     return processor.ProcessCall(this, context);
 }
+
+Context ProcessBreak(NodeProcessorCall& processor,
+                                 const Context& context)
+{
+    if(Name != "break")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessBreak(this, context);
+}
+
+Context ProcessNext(NodeProcessorCall& processor,
+                                 const Context& context)
+{
+    if(Name != "next")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessNextNode(this, context);
+}

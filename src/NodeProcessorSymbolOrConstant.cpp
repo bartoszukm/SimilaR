@@ -13,7 +13,7 @@ Context NodeProcessorSymbolOrConstant::Process(SyntaxNode* n, const Context& con
     return n->ProcessSymbolOrConstant(*this, context);
 }
 
-Context ProcessSymbol(SyntaxNode* n,
+Context NodeProcessorSymbolOrConstant::ProcessSymbol(SyntaxNode* n,
                     const Context& context)
 {
     Context myContext;
@@ -21,7 +21,7 @@ Context ProcessSymbol(SyntaxNode* n,
     myContext.FlowVertex = context.FlowVertex;
     if(onlyAddToUses)
     {
-        myContext.push_back(n->Name);
+        myContext.Uses.push_back(n->Name);
         return myContext;
     }
 
@@ -45,7 +45,7 @@ Context ProcessSymbol(SyntaxNode* n,
     return myContext;
 }
 
-Context ProcessConstant(SyntaxNode* n,
+Context NodeProcessorSymbolOrConstant::ProcessConstant(SyntaxNode* n,
                     const Context& context)
 {
     Context myContext;
@@ -54,7 +54,7 @@ Context ProcessConstant(SyntaxNode* n,
 
     if(onlyAddToUses)
     {
-        myContext.push_back(n->Name);
+        myContext.Uses.push_back(n->Name);
         return myContext;
     }
     GraphType& g = CDG.GetGraph();
