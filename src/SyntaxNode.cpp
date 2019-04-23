@@ -314,13 +314,19 @@ Context SyntaxNode::ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& proce
     return processor.ProcessNext(this, context);
 }
 
-virtual Context ProcessBreak(NodeProcessorCall& processor,
+virtual Context ProcessBreak(NodeProcessorBreak& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);
 }
 
-virtual Context ProcessNext(NodeProcessorCall& processor,
+virtual Context ProcessNext(NodeProcessorNext& processor,
+                                 const Context& context)
+{
+    return processor.ProcessNext(this, context);
+}
+
+virtual Context ProcessAssignment(NodeProcessorAssignment& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);

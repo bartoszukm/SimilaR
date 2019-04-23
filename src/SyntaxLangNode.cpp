@@ -176,7 +176,7 @@ Context SyntaxLangNode::ProcessCall(NodeProcessorCall& processor,
     return processor.ProcessCall(this, context);
 }
 
-Context ProcessBreak(NodeProcessorCall& processor,
+Context ProcessBreak(NodeProcessorBreak& processor,
                                  const Context& context)
 {
     if(Name != "break")
@@ -185,11 +185,20 @@ Context ProcessBreak(NodeProcessorCall& processor,
     return processor.ProcessBreak(this, context);
 }
 
-Context ProcessNext(NodeProcessorCall& processor,
+Context ProcessNext(NodeProcessorNext& processor,
                                  const Context& context)
 {
     if(Name != "next")
         return processor.ProcessNext(this, context);
 
     return processor.ProcessNextNode(this, context);
+}
+
+Context ProcessAssignment(NodeProcessorAssignment& processor,
+                                 const Context& context)
+{
+    if(Name != "<-" && Name != "=")
+        return processor.ProcessNext(this, context);
+
+    return processor.ProcessAssignment(this, context);
 }

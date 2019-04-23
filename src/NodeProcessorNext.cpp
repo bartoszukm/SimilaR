@@ -16,6 +16,7 @@ Context NodeProcessorNext::Process(SyntaxNode* n, const Context& context)
 Context NodeProcessorNext::ProcessNextNode(SyntaxNode* n,
                     const Context& context)
 {
+    GraphType& g = CDG.GetGraph();
     Context myContext;
     myContext.ControlVertex = context.ControlVertex;
     myContext.FlowVertex = context.FlowVertex;
@@ -40,5 +41,5 @@ Context NodeProcessorNext::ProcessNextNode(SyntaxNode* n,
         structuredTransfersOfControl->push_back(make_pair(if_node,pnode));
 
     myContext.FlowVertex = node;
-    return myContext.FlowVertex;
+    return myContext;
 }
