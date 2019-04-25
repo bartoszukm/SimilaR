@@ -79,6 +79,23 @@ Context NodeProcessorAssignment::MakeAssignmentVertex(string leftVariableName, c
     return myContext;
 }
 
+Context NodeProcessorAssignment::TryAddAlias(string left, string right)
+{
+    map<string, string>& variableName2variableName = CDG.GetAliasesDictionary();
+    string ss = right; 
+    bool shouldEmplace = true;
+    // tutaj sprawdzenie, czy juz takiego aliasu nie bylo wczesniej
+    while(variableName2variableName.find(ss) != variableName2variableName.end())
+    {
+        ss = variableName2variableName[ss];
+        if(ss == left)
+            shouldEmplace = false;
+    }
+
+    if(shouldEmplace && left != ss)
+        variableName2variableName.emplace(left, ss);
+}
+
 Context NodeProcessorAssignment::MakeAssignmentVertex(SyntaxLangNode* assignmentNode,
                              SyntaxSymbolNode* left,
                              SyntaxConstantNode* right,
@@ -119,7 +136,7 @@ Context NodeProcessorAssignment::MakeLeftCallAndAssignmentVertex(SyntaxLangNode*
     myContext.Uses = context.Uses;
     myContext.Uses.push_back(right->Name);
 
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false); //leftSideOfAssign = true
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->GetLeftName()); //leftSideOfAssign = true
     Context leftContext = processor->Process(left, myContext);
     // wstawic to z leftContext uses do mojego uses?
     myContext.Uses.splice(myContext.Uses.end(), leftContext.Uses);
@@ -136,20 +153,7 @@ Context NodeProcessorAssignment::MakeAlias(SyntaxLangNode* assignmentNode,
     Context myContext;
     myContext.ControlVertex = context.ControlVertex;
     myContext.FlowVertex = context.FlowVertex;
-
-    map<string, string>& variableName2variableName = CDG.GetAliasesDictionary();
-    string ss = right->Name;
-    bool shouldEmplace = true;
-    // tutaj sprawdzenie, czy juz takiego aliasu nie bylo wczesniej
-    while(variableName2variableName.find(ss) != variableName2variableName.end())
-    {
-        ss = variableName2variableName[ss];
-        if(ss == left->Name)
-            shouldEmplace = false;
-    }
-
-    if(shouldEmplace && left->Name != right->Name)
-        variableName2variableName.emplace(left->Name, right->Name);
+    TryAddAlias(left->Name, right->Name);
     return myContext;
 }
 
@@ -159,7 +163,16 @@ Context NodeProcessorAssignment::MakeAliasAndRightCall(SyntaxLangNode* assignmen
                              const Context& context
                              )
 {
+    Context myContext;
+    myContext.ControlVertex = context.ControlVertex;
+    myContext.FlowVertex = context.FlowVertex;
+
+    TryAddAlias(left->Name, right->GetLeftName());// wyciagamy x z x$a
     
+    // tu trzeba zaznaczyc, ze generujemy left->Name
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->Name); //leftSideOfAssign = true
+    Context leftContext = processor->Process(right, myContext);
+    return leftContext;
 }
 
 Context NodeProcessorAssignment::MakeRightCall(SyntaxLangNode* assignmentNode,
@@ -168,7 +181,9 @@ Context NodeProcessorAssignment::MakeRightCall(SyntaxLangNode* assignmentNode,
                              const Context& context
                              )
 {
-    
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->Name); //leftSideOfAssign = true
+    Context rightContext = processor->Process(right, context);
+    return rightContext;
 }
 
 Context NodeProcessorAssignment::MakeLeftCallRightCallAssignmentVertex(SyntaxLangNode* assignmentNode,
@@ -177,5 +192,18 @@ Context NodeProcessorAssignment::MakeLeftCallRightCallAssignmentVertex(SyntaxLan
                              const Context& context
                              )
 {
-    
+    Context myContext;
+    myContext.ControlVertex = context.ControlVertex;
+    myContext.FlowVertex = context.FlowVertex;
+    myContext.Uses = context.Uses;
+
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->GetLeftName()); //leftSideOfAssign = true
+    Context leftContext = processor->Process(left, myContext);
+    // wstawic to z leftContext uses do mojego uses?
+    myContext.Uses.splice(myContext.Uses.end(), leftContext.Uses);
+
+    Context rightContext = processor->Process(right, myContext);
+    myContext.Uses.splice(myContext.Uses.end(), rightContext.Uses); // ???
+
+    return MakeAssignmentVertex(left->GetLeftName(), myContext);
 }

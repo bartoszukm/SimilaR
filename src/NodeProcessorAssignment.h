@@ -29,6 +29,8 @@ Context ProcessAssignment(SyntaxLangNode* n,
                     const Context& context);
 
 Context MakeAssignmentVertex(string leftVariableName, const Context& context);
+Context TryAddAlias(string left, string right);
+
 
 Context MakeAssignmentVertex(SyntaxLangNode* assignmentNode,
                              SyntaxSymbolNode* left,
