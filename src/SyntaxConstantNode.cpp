@@ -33,5 +33,21 @@ Context SyntaxConstantNode::SyntaxSymbolNode::ProcessSymbolOrConstant(
     NodeProcessorSymbolOrConstant& processor,
     const Context& context)
 {
-    processor->ProcessConstant(this, context);
+    return processor->ProcessConstant(this, context);
+}
+
+Context SyntaxConstantNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxSymbolNode* left,
+                                              const Context& context)
+{
+    return processor.MakeAssignmentVertex(assignmentNode, left, this, context);
+}
+
+Context SyntaxConstantNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxLangNode* left,
+                                              const Context& context)
+{
+    return processor.MakeLeftCallAndAssignmentVertex(assignmentNode, left, this, context);
 }

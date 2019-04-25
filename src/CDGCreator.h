@@ -26,6 +26,7 @@ GraphType CreateCDG(SyntaxNode* s);
 unique_ptr<NodeProcessor> GetProcessors(bool isLastInstruction=false);
 GraphType& GetGraph();
 map<string, string>& GetAliasesDictionary();
+GetCanonicalName(string s);
 int& GetGlobalCallNumber();
 
 

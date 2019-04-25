@@ -39,6 +39,8 @@ public:
     virtual unique_ptr<SyntaxNode> Copy();
     virtual void RepairTree();
 
+    virtual string GetLeftName();
+
     virtual Context ProcessWhile(NodeProcessorWhile& processor,
                                  const Context& context);
     virtual Context ProcessFor(NodeProcessorWhile& processor,
@@ -62,6 +64,18 @@ public:
                                  const Context& context);
     virtual Context ProcessAssignment(NodeProcessorAssignment& processor,
                                  const Context& context);
+    virtual Context ProcessFirstAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxNode* right,
+                                              const Context& context);
+    virtual Context ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxSymbolNode* left,
+                                              const Context& context);
+    virtual Context ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxLangNode* left,
+                                              const Context& context);
 };
 
 #endif

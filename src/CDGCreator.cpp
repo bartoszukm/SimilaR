@@ -31,6 +31,19 @@ map<string, string>& CDGCreator::GetAliasesDictionary()
     return variableName2variableName;
 }
 
+string CDGCreator::getCanonicalName(string s)
+{
+    while(variableName2variableName.find(s) !=
+            variableName2variableName.end())
+    {
+        auto it = variableName2variableName.find(s);
+        if(s == it->second)
+            break;
+        s = it->second ;
+    }
+    return s;
+}
+
 int& CDGCreator::GetGlobalCallNumber()
 {
     return globalCallNumber;

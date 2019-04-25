@@ -33,6 +33,14 @@ public:
 
     virtual Context ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& processor,
                                  const Context& context);
+    virtual Context ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxSymbolNode* left,
+                                              const Context& context);
+    virtual Context ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxLangNode* left,
+                                              const Context& context);
 };
 
 #endif

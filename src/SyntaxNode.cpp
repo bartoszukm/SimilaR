@@ -253,6 +253,11 @@ string SyntaxNode::formatName(Rcpp::String x) {
    return string(buf);
 }
 
+string SyntaxNode::GetLeftName()
+{
+    return Name;
+}
+
 Context SyntaxNode::ProcessWhile(NodeProcessorWhile& processor,
                                  const Context& context)
 {
@@ -314,20 +319,44 @@ Context SyntaxNode::ProcessSymbolOrConstant(NodeProcessorSymbolOrConstant& proce
     return processor.ProcessNext(this, context);
 }
 
-virtual Context ProcessBreak(NodeProcessorBreak& processor,
+Context SyntaxNode::ProcessBreak(NodeProcessorBreak& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);
 }
 
-virtual Context ProcessNext(NodeProcessorNext& processor,
+Context SyntaxNode::ProcessNext(NodeProcessorNext& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);
 }
 
-virtual Context ProcessAssignment(NodeProcessorAssignment& processor,
+Context SyntaxNode::ProcessAssignment(NodeProcessorAssignment& processor,
                                  const Context& context)
 {
     return processor.ProcessNext(this, context);
+}
+
+Context SyntaxNode::ProcessFirstAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxNode* right,
+                                              const Context& context)
+{
+    Rf_error("Assignment that should not exist.");
+}
+
+Context SyntaxNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxSymbolNode* left,
+                                              const Context& context)
+{
+    Rf_error("Assignment that should not exist.");
+}
+
+Context SyntaxNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxLangNode* left,
+                                              const Context& context)
+{
+    Rf_error("Assignment that should not exist.");
 }

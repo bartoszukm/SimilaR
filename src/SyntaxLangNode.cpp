@@ -99,6 +99,10 @@ void SyntaxLangNode::RepairTree()
   }
 }
 
+string SyntaxLangNode::GetLeftName()
+{
+    return Children[0]->GetLeftName();
+}
 
 Context SyntaxLangNode::ProcessWhile(NodeProcessorWhile& processor,
                                          const Context& context)
@@ -176,7 +180,7 @@ Context SyntaxLangNode::ProcessCall(NodeProcessorCall& processor,
     return processor.ProcessCall(this, context);
 }
 
-Context ProcessBreak(NodeProcessorBreak& processor,
+Context SyntaxLangNode::ProcessBreak(NodeProcessorBreak& processor,
                                  const Context& context)
 {
     if(Name != "break")
@@ -185,7 +189,7 @@ Context ProcessBreak(NodeProcessorBreak& processor,
     return processor.ProcessBreak(this, context);
 }
 
-Context ProcessNext(NodeProcessorNext& processor,
+Context SyntaxLangNode::ProcessNext(NodeProcessorNext& processor,
                                  const Context& context)
 {
     if(Name != "next")
@@ -194,11 +198,37 @@ Context ProcessNext(NodeProcessorNext& processor,
     return processor.ProcessNextNode(this, context);
 }
 
-Context ProcessAssignment(NodeProcessorAssignment& processor,
+Context SyntaxLangNode::ProcessAssignment(NodeProcessorAssignment& processor,
                                  const Context& context)
 {
     if(Name != "<-" && Name != "=")
         return processor.ProcessNext(this, context);
 
     return processor.ProcessAssignment(this, context);
+}
+
+Context SyntaxLangNode::ProcessFirstAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxNode* right,
+                                              const Context& context)
+{
+    return right->ProcessSecondAssignmentChild(processor, assignmentNode, this, context);
+}
+
+Context SyntaxLangNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxSymbolNode* left,
+                                              const Context& context)
+{
+    if(Name == "$")
+        return processor.MakeAliasAndRightCall(assignmentNode, left, this, context);
+    return processor.MakeRightCall(assignmentNode, left, this, context);
+}
+
+Context SyntaxLangNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,
+                                              SyntaxLangNode* assignmentNode,
+                                              SyntaxLangNode* left,
+                                              const Context& context)
+{
+    return processor.MakeLeftCallRightCallAssignmentVertex(assignmentNode, left, this, context);
 }
