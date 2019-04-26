@@ -1,6 +1,19 @@
 #include "CDGCreator.h"
 #include "NodeProcessorWhile.h"
 #include "NodeProcessorWrong.h"
+#include "NodeProcessorAssignment.h"
+#include "NodeProcessorFunction.h"
+#include "NodeProcessorFunctionParameters.h"
+#include "NodeProcessorSymbolOrConstant.h"
+#include "NodeProcessorIf.h"
+#include "NodeProcessorFor.h"
+#include "NodeProcessorNext.h"
+#include "NodeProcessorBreak.h"
+#include "NodeProcessorParenthesis.h"
+#include "NodeProcessorBrace.h"
+#include "NodeProcessorCall.h"
+#include "NodeProcessorIf.h"
+
 
 GraphType CDGCreator::CreateCDG(SyntaxNode* s)
 {
@@ -13,12 +26,23 @@ GraphType CDGCreator::CreateCDG(SyntaxNode* s)
     return g;
 } 
 
-unique_ptr<NodeProcessor> CDGCreator::GetProcessors(bool isLastInstruction)
+unique_ptr<NodeProcessor> CDGCreator::GetProcessors(bool isLastInstruction, bool onlyAddToUses, string gen)
 {
-    NodeProcessor* whileProcessor = new NodeProcessorWhile(*this);
-    whileProcessor->SetNext(new NodeProcessorWrong(*this));
+    NodeProcessor* functionProcessor = new NodeProcessorFunction(*this, gen);
+    functionProcessor->SetNext(new NodeProcessorFunctionParameters(*this))
+                    ->SetNext(new NodeProcessorSymbolOrConstant(*this, onlyAddToUses, isLastInstruction))
+                    ->SetNext(new NodeProcessorIf(*this, isLastInstruction))
+                    ->SetNext(new NodeProcessorFor(*this))
+                    ->SetNext(new NodeProcessorWhile(*this))
+                    ->SetNext(new NodeProcessorNext(*this))
+                    ->SetNext(new NodeProcessorBreak(*this))
+                    ->SetNext(new NodeProcessorParenthesis(*this, isLastInstruction))
+                    ->SetNext(new NodeProcessorBrace(*this, isLastInstruction))
+                    ->SetNext(new NodeProcessorCall(*this, gen, isLastInstruction))
+                    ->SetNext(new NodeProcessorAssignment(*this, isLastInstruction))
+                    ->SetNext(new NodeProcessorWrong(*this));
 
-    return unique_ptr<NodeProcessor>(whileProcessor);
+    return unique_ptr<NodeProcessor>(functionProcessor);
 }
 
 GraphType& CDGCreator::GetGraph()
@@ -31,7 +55,7 @@ map<string, string>& CDGCreator::GetAliasesDictionary()
     return variableName2variableName;
 }
 
-string CDGCreator::getCanonicalName(string s)
+string CDGCreator::GetCanonicalName(string s)
 {
     while(variableName2variableName.find(s) !=
             variableName2variableName.end())

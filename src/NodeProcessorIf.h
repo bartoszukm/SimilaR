@@ -1,5 +1,5 @@
-#ifndef NODEPROCESSORFOR_H
-#define NODEPROCESSORFOR_H
+#ifndef NODEPROCESSORIF_H
+#define NODEPROCESSORIF_H
 
 #include "common.h"
 #include "graphUtils.h"
@@ -19,10 +19,13 @@ class NodeProcessorIf : public NodeProcessor
 // string gen;
 // SyntaxLangNode *ifNode;
 // unique_ptr<NodeProcessor> processor;
+protected:
+bool isLastInstruction;
+int makeLexicalComparison(SyntaxNode* n1, SyntaxNode* n2);
 
 public:
 // NodeProcessorIf();
-NodeProcessorIf(CDGCreator& cdg);
+NodeProcessorIf(CDGCreator& cdg, bool isLastInstruction);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

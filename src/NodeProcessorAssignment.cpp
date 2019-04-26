@@ -1,11 +1,14 @@
 #include "NodeProcessorAssignment.h"
 #include "CDGCreator.h"
 #include "SyntaxLangNode.h"
+#include "SyntaxSymbolNode.h"
+#include "SyntaxConstantNode.h"
+
 
 // NodeProcessorAssignment::NodeProcessorAssignment() : base()
 // {}
 
-NodeProcessorAssignment::NodeProcessorAssignment(CDGCreator& cdg) : NodeProcessor(cdg)
+NodeProcessorAssignment::NodeProcessorAssignment(CDGCreator& cdg, bool isLastInstruction) : NodeProcessor(cdg), isLastInstruction(isLastInstruction)
 {}
 
 Context NodeProcessorAssignment::Process(SyntaxNode* n, const Context& context)
@@ -16,7 +19,7 @@ Context NodeProcessorAssignment::Process(SyntaxNode* n, const Context& context)
 Context NodeProcessorAssignment::ProcessAssignment(SyntaxLangNode* assignmentNode,
                     const Context& context)
 {
-    assignmentNode->Children[0]->ProcessFirstAssignmentChild(*this,
+    return assignmentNode->Children[0]->ProcessFirstAssignmentChild(*this,
                                                             assignmentNode, 
                                                             assignmentNode->Children[1].get(),
                                                             context);
@@ -43,7 +46,7 @@ Context NodeProcessorAssignment::ProcessAssignment(SyntaxLangNode* assignmentNod
 
        
 
-    return myContext;
+//    return myContext;
 }
 
 Context NodeProcessorAssignment::MakeAssignmentVertex(string leftVariableName, const Context& context)
@@ -60,9 +63,7 @@ Context NodeProcessorAssignment::MakeAssignmentVertex(string leftVariableName, c
     g[node].color = color_assignment;
     g[node].name = leftVariableName+string("<-")+std::to_string(globalCallNumber++);
     g[node].uses = context.Uses;
-    g[node].arguments = arguments; // ???
-    g[node].lastInstruction = lastInstruction; // ???
-    g[node].isLeftSideOfAssign = isLeftSideOfAssign; // ???
+    g[node].lastInstruction = isLastInstruction;
 
     g[node].gen = leftVariableName;
 
@@ -117,7 +118,7 @@ Context NodeProcessorAssignment::MakeLeftCallAndAssignmentVertex(SyntaxLangNode*
     myContext.Uses = context.Uses;
     myContext.Uses.push_back(right->Name);
 
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false); //leftSideOfAssign = true
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false);
     Context leftContext = processor->Process(left, myContext);
     // wstawic to z leftContext uses do mojego uses?
     myContext.Uses.splice(myContext.Uses.end(), leftContext.Uses);
@@ -136,7 +137,7 @@ Context NodeProcessorAssignment::MakeLeftCallAndAssignmentVertex(SyntaxLangNode*
     myContext.Uses = context.Uses;
     myContext.Uses.push_back(right->Name);
 
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->GetLeftName()); //leftSideOfAssign = true
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, true, left->GetLeftName());
     Context leftContext = processor->Process(left, myContext);
     // wstawic to z leftContext uses do mojego uses?
     myContext.Uses.splice(myContext.Uses.end(), leftContext.Uses);
@@ -170,7 +171,7 @@ Context NodeProcessorAssignment::MakeAliasAndRightCall(SyntaxLangNode* assignmen
     TryAddAlias(left->Name, right->GetLeftName());// wyciagamy x z x$a
     
     // tu trzeba zaznaczyc, ze generujemy left->Name
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->Name); //leftSideOfAssign = true
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, true, left->Name);
     Context leftContext = processor->Process(right, myContext);
     return leftContext;
 }
@@ -181,7 +182,7 @@ Context NodeProcessorAssignment::MakeRightCall(SyntaxLangNode* assignmentNode,
                              const Context& context
                              )
 {
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->Name); //leftSideOfAssign = true
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, true, left->Name);
     Context rightContext = processor->Process(right, context);
     return rightContext;
 }
@@ -197,7 +198,7 @@ Context NodeProcessorAssignment::MakeLeftCallRightCallAssignmentVertex(SyntaxLan
     myContext.FlowVertex = context.FlowVertex;
     myContext.Uses = context.Uses;
 
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, left->GetLeftName()); //leftSideOfAssign = true
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, true, left->GetLeftName());
     Context leftContext = processor->Process(left, myContext);
     // wstawic to z leftContext uses do mojego uses?
     myContext.Uses.splice(myContext.Uses.end(), leftContext.Uses);

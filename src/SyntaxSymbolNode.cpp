@@ -1,5 +1,7 @@
 #include "SyntaxSymbolNode.h"
 #include "NodeProcessorWhile.h"
+#include "NodeProcessorSymbolOrConstant.h"
+#include "NodeProcessorAssignment.h"
 
 unique_ptr<SyntaxNode> SyntaxSymbolNode::ConvertLispToSyntaxNode(SEXP s)
 {

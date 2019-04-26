@@ -5,7 +5,7 @@
 // NodeProcessorIf::NodeProcessorWhile() : base()
 // {}
 
-NodeProcessorFunction::NodeProcessorFunction(CDGCreator& cdg, vertex_t* entry) : NodeProcessor(cdg), entry(entry)
+NodeProcessorFunction::NodeProcessorFunction(CDGCreator& cdg, string gen, vertex_t* entry) : NodeProcessor(cdg), entry(entry), gen(gen)
 {}
 
 Context NodeProcessorFunction::Process(SyntaxNode* n, const Context& context)
@@ -27,13 +27,12 @@ Context NodeProcessorFunction::ProcessFunction(SyntaxLangNode* functionNode, con
         g[*entry].color = color_entry;
         g[*entry].name = "Entry";
         g[*entry].lastInstruction = false;
-        g[*entry].isLeftSideOfAssign = false;
-        g[*entry].functionName = returnValueVariableName; // ???
+        g[*entry].functionName = gen; // jesli x <- apply(function(a)) to tutaj wstawimy x. Dla funkcji jako takiej wstawiamy glupote
     }
 
     Context myContext;
     myContext.ControlVertex = *entry;
     myContext.FlowVertex = *entry;
-    processor.Process(functionNode->Children[0].get(), myContext); // parametry funkcji
-    processor.Process(functionNode->Children[1].get(), myContext); // cialo funkcji
+    processor->Process(functionNode->Children[0].get(), myContext); // parametry funkcji
+    processor->Process(functionNode->Children[1].get(), myContext); // cialo funkcji
 }

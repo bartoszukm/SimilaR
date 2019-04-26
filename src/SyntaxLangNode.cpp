@@ -1,5 +1,18 @@
 #include "SyntaxLangNode.h"
 #include "NodeProcessorWhile.h"
+#include "NodeProcessorWrong.h"
+#include "NodeProcessorAssignment.h"
+#include "NodeProcessorFunction.h"
+#include "NodeProcessorFunctionParameters.h"
+#include "NodeProcessorSymbolOrConstant.h"
+#include "NodeProcessorIf.h"
+#include "NodeProcessorFor.h"
+#include "NodeProcessorNext.h"
+#include "NodeProcessorBreak.h"
+#include "NodeProcessorParenthesis.h"
+#include "NodeProcessorBrace.h"
+#include "NodeProcessorCall.h"
+#include "NodeProcessorIf.h"
 
 unique_ptr<SyntaxNode> SyntaxLangNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -113,17 +126,17 @@ Context SyntaxLangNode::ProcessWhile(NodeProcessorWhile& processor,
     return processor.ProcessWhile(this, context);
 }
 
-Context SyntaxLangNode::ProcessFor(NodeProcessorWhile& processor,
+Context SyntaxLangNode::ProcessFor(NodeProcessorFor& processor,
                                          const Context& context)
 {
     if(Name != "for")
         return processor.ProcessNext(this, context);
 
-    return children[1]->ProcessForPredicate(processor, *this, context);
+    return Children[1]->ProcessForPredicate(processor, this, context);
 }
 
 Context SyntaxLangNode::ProcessForPredicate(NodeProcessorFor& processor,
-                                        const SyntaxLangNode& forNode,
+                                        SyntaxLangNode *forNode,
                                         const Context& context)
 {
     //@TODO: Name przepuscic przez getCanonicalName

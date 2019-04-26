@@ -16,11 +16,13 @@ class SyntaxLangNode;
 class NodeProcessorCall : public NodeProcessor
 {
 protected:
+    string gen;
+    bool isLastInstruction;
     void createNode(SyntaxLangNode* callNode, Context& myContext);
 
 public:
 // NodeProcessorCall();
-NodeProcessorCall(CDGCreator& cdg);
+NodeProcessorCall(CDGCreator& cdg, string gen, bool isLastInstruction);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

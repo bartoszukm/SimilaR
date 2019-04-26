@@ -12,17 +12,18 @@ using namespace std;
 using namespace boost;
 
 class SyntaxLangNode;
+class SyntaxConstantNode;
 
 class NodeProcessorAssignment : public NodeProcessor
 {
 protected:
+    bool isLastInstruction;
     void createNode(SyntaxLangNode* callNode, Context& myContext);
 
 public:
 // NodeProcessorAssignment();
-NodeProcessorAssignment(CDGCreator& cdg);
+NodeProcessorAssignment(CDGCreator& cdg, bool isLastInstruction);
 virtual Context Process(SyntaxNode* s,
-                        NodeProcessorAssignment& processor,
                         const Context& context); 
 
 Context ProcessAssignment(SyntaxLangNode* n,

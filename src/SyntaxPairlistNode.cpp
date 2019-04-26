@@ -1,5 +1,6 @@
 #include "SyntaxPairlistNode.h"
 #include "NodeProcessorWhile.h"
+#include "NodeProcessorFunctionParameters.h"
 
 unique_ptr<SyntaxNode> SyntaxPairlistNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -49,7 +50,7 @@ unique_ptr<SyntaxNode> SyntaxPairlistNode::Copy()
     return unique_ptr<SyntaxNode>(s);
 }
 
-virtual Context SyntaxPairlistNode::ProcessFunctionParameters(
+Context SyntaxPairlistNode::ProcessFunctionParameters(
     NodeProcessorFunctionParameters& processor,
     const Context& context)
 {

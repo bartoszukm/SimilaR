@@ -5,7 +5,7 @@
 // NodeProcessorParenthesis::NodeProcessorParenthesis() : base()
 // {}
 
-NodeProcessorParenthesis::NodeProcessorParenthesis(CDGCreator& cdg, vertex_t* entry) : NodeProcessor(cdg), entry(entry)
+NodeProcessorParenthesis::NodeProcessorParenthesis(CDGCreator& cdg, bool isLastInstruction) : NodeProcessor(cdg), isLastInstruction(isLastInstruction)
 {}
 
 Context NodeProcessorParenthesis::Process(SyntaxNode* n, const Context& context)
@@ -15,6 +15,6 @@ Context NodeProcessorParenthesis::Process(SyntaxNode* n, const Context& context)
 
 Context NodeProcessorParenthesis::ProcessParenthesis(SyntaxLangNode* parenthesisNode, const Context& context)
 {
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false); // taki sam jak wyzej
+    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(isLastInstruction);
     processor->Process(parenthesisNode->Children[0].get(), context);   
 }

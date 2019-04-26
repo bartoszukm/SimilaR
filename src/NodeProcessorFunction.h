@@ -20,10 +20,11 @@ class NodeProcessorFunction : public NodeProcessor
 // SyntaxLangNode *forNode;
 // unique_ptr<NodeProcessor> processor;
 vertex_t* entry;
+string gen;
 
 public:
 // NodeProcessorFunction();
-NodeProcessorFunction(CDGCreator& cdg, vertex_t* entry = nullptr);
+NodeProcessorFunction(CDGCreator& cdg, string gen, vertex_t* entry = nullptr);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

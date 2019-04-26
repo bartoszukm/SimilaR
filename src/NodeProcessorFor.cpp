@@ -135,8 +135,7 @@ std::tuple<size_t, size_t> NodeProcessorFor::MakeForBody(const Context& context,
     g[node].color = color_header;
     g[node].name = "for";
     g[node].gen = gen;
-    g[node].isLeftSideOfAssign = false;
-    g[node].lastInstruction = lastInstruction; // ???
+    g[node].lastInstruction = false; // ???
     std::pair<edge_t, bool>  e;
 
     e = add_edge(context.ControlVertex, node, g);

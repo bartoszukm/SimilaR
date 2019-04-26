@@ -15,10 +15,12 @@ class SyntaxLangNode;
 
 class NodeProcessorParenthesis : public NodeProcessor
 {
+protected:
+bool isLastInstruction;
 
 public:
 // NodeProcessorParenthesis();
-NodeProcessorParenthesis(CDGCreator& cdg);
+NodeProcessorParenthesis(CDGCreator& cdg, bool isLastInstruction);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

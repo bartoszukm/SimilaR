@@ -19,8 +19,8 @@ protected:
     void createNode(SyntaxLangNode* callNode, Context& myContext);
 
 public:
-// NodeProcessorBreak();
-NodeProcessorBreak(CDGCreator& cdg);
+// NodeProcessorNext();
+NodeProcessorNext(CDGCreator& cdg);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

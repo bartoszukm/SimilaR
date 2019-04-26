@@ -12,6 +12,7 @@ using namespace std;
 using namespace boost;
 
 class SyntaxLangNode;
+class SyntaxPairlistNode;
 
 class NodeProcessorFunctionParameters : public NodeProcessor
 {

@@ -19,10 +19,12 @@ class NodeProcessorBrace : public NodeProcessor
 // string gen;
 // SyntaxLangNode *forNode;
 // unique_ptr<NodeProcessor> processor;
+protected:
+bool isLastInstruction;
 
 public:
-// NodeProcessorFunctionParameters();
-NodeProcessorFunctionParameters(CDGCreator& cdg);
+// NodeProcessorBrace();
+NodeProcessorBrace(CDGCreator& cdg, bool isLastInstruction);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

@@ -5,7 +5,7 @@
 // NodeProcessorFunction::NodeProcessorFunction() : base()
 // {}
 
-NodeProcessorSymbolOrConstant::NodeProcessorSymbolOrConstant(CDGCreator& cdg, bool onlyAddToUses) : NodeProcessor(cdg), onlyAddToUses(onlyAddToUses)
+NodeProcessorSymbolOrConstant::NodeProcessorSymbolOrConstant(CDGCreator& cdg, bool onlyAddToUses, bool isLastInstruction) : NodeProcessor(cdg), onlyAddToUses(onlyAddToUses), isLastInstruction(isLastInstruction)
 {}
 
 Context NodeProcessorSymbolOrConstant::Process(SyntaxNode* n, const Context& context)
@@ -32,7 +32,7 @@ Context NodeProcessorSymbolOrConstant::ProcessSymbol(SyntaxNode* n,
     g[node].color = color_symbol;
     g[node].name = n->Name;
     g[node].gen = "";
-    g[node].lastInstruction = lastInstruction; // ???
+    g[node].lastInstruction = isLastInstruction;
     g[node].isLeftSideOfAssign = false;
 
     std::pair<edge_t, bool> e = add_edge(myContext.FlowVertex, node, g);

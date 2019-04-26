@@ -35,10 +35,10 @@ Context NodeProcessorNext::ProcessNextNode(SyntaxNode* n,
     g[e.first].color = color_control_dependency;
 
     // ???
-    vertex_t* pnode = new vertex_t;
-    *pnode = node;
-    if(structuredTransfersOfControl != NULL) 
-        structuredTransfersOfControl->push_back(make_pair(if_node,pnode));
+//    vertex_t* pnode = new vertex_t;
+//    *pnode = node;
+//    if(structuredTransfersOfControl != NULL)
+//        structuredTransfersOfControl->push_back(make_pair(if_node,pnode));
 
     myContext.FlowVertex = node;
     return myContext;

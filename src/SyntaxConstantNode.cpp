@@ -1,6 +1,7 @@
 #include "SyntaxConstantNode.h"
 #include "NodeProcessorWhile.h"
 #include "NodeProcessorSymbolOrConstant.h"
+#include "NodeProcessorAssignment.h"
 
 unique_ptr<SyntaxNode> SyntaxConstantNode::ConvertLispToSyntaxNode(SEXP s)
 {
@@ -29,11 +30,11 @@ unique_ptr<SyntaxNode> SyntaxConstantNode::Copy()
     return unique_ptr<SyntaxNode>(s);
 }
 
-Context SyntaxConstantNode::SyntaxSymbolNode::ProcessSymbolOrConstant(
+Context SyntaxConstantNode::ProcessSymbolOrConstant(
     NodeProcessorSymbolOrConstant& processor,
     const Context& context)
 {
-    return processor->ProcessConstant(this, context);
+    return processor.ProcessConstant(this, context);
 }
 
 Context SyntaxConstantNode::ProcessSecondAssignmentChild(NodeProcessorAssignment& processor,

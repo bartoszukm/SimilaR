@@ -1,5 +1,6 @@
 #include "NodeProcessorWhile.h"
 #include "CDGCreator.h"
+#include "SyntaxLangNode.h"
 
 // NodeProcessorWhile::NodeProcessorWhile() : base()
 // {}
@@ -20,63 +21,61 @@ Context NodeProcessorWhile::ProcessWhile(SyntaxLangNode* whileNode, const Contex
     myContext.FlowVertex = context.FlowVertex;
     
     unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false);
-    Context predicateContext = processor->Process(whileNode->Children[0], myContext);
+    Context predicateContext = processor->Process(whileNode->Children[0].get(), myContext);
     
-        // else if(index == 1)
-        // {
-        //     if(TYPEOF(CAR(s1)) == SYMSXP)
-        //     {
+    // else if(index == 1)
+    // {
+    //     if(TYPEOF(CAR(s1)) == SYMSXP)
+    //     {
 
-        //         uses.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(s1))),
-        //                                            variableName2variableName));
-        //     }
-        //     else if(TYPEOF(CAR(s1)) == LANGSXP)
-        //     {
-        //         makeCallNode(CAR(
-        //                          s1), returnValueVariableName,
-        //                      controlVertex,
-        //                      flowVertex, uses, true, false,false, false, false);
-        //     }
+    //         uses.push_back(graphUtils::getCanonicalName(CHAR(PRINTNAME(CAR(s1))),
+    //                                            variableName2variableName));
+    //     }
+    //     else if(TYPEOF(CAR(s1)) == LANGSXP)
+    //     {
+    //         makeCallNode(CAR(
+    //                          s1), returnValueVariableName,
+    //                      controlVertex,
+    //                      flowVertex, uses, true, false,false, false, false);
+    //     }
 
-        // }
+    // }
 
-        //context update...
+    //context update...
 
-        vertex_t node;
-        
-        node = boost::add_vertex(g);
-        g[node].color = color_header;
-        g[node].name = "while";
-        g[node].isLeftSideOfAssign = false;
-        g[node].lastInstruction = lastInstruction; // ???
+    vertex_t node;
 
-        std::pair<edge_t, bool>  e = add_edge(context.ControlVertex, node, g);
-        g[e.first].color = color_control_dependency;
+    node = boost::add_vertex(g);
+    g[node].color = color_header;
+    g[node].name = "while";
+    g[node].lastInstruction = false; // tu znów logika, że nagłówek pętli sam nie jest ostatni
 
-        e = add_edge(predicateContext.FlowVertex, node, g);
-        g[e.first].color = color_control_flow;
-        g[node].uses = predicateContext.Uses;
+    std::pair<edge_t, bool>  e = add_edge(context.ControlVertex, node, g);
+    g[e.first].color = color_control_dependency;
 
-        myContext.FlowVertex = node;
-        myContext.ControlVertex = node;
-        Context body_context = processor->Process(whileNode->Children[1], myContext);
+    e = add_edge(predicateContext.FlowVertex, node, g);
+    g[e.first].color = color_control_flow;
+    g[node].uses = predicateContext.Uses;
 
-        makeStructuredTransfersOfControlForLoop(node, &structuredTransfersOfControl); /// ???
+    myContext.FlowVertex = node;
+    myContext.ControlVertex = node;
+    Context body_context = processor->Process(whileNode->Children[1].get(), myContext);
 
-        e = add_edge(body_context.FlowVertex, node, g);
-        g[e.first].color = color_control_flow;
-        return myContext;
-        // else if(index == 2)
-        // {
-            
+//        makeStructuredTransfersOfControlForLoop(node, &structuredTransfersOfControl); /// ???
 
-        //     flowVertex = node;
-        //     list<pair<vertex_t*, vertex_t*> > structuredTransfersOfControl;
-        //     makeCDG_rec_cpp_wrapper(s1, returnValueVariableName,
-        //                             node,flowVertex,NULL,
-        //                             &structuredTransfersOfControl,
-        //                             lastInstruction);
-            
-        // }
-    }
+    e = add_edge(body_context.FlowVertex, node, g);
+    g[e.first].color = color_control_flow;
+    return myContext;
+    // else if(index == 2)
+    // {
+
+
+    //     flowVertex = node;
+    //     list<pair<vertex_t*, vertex_t*> > structuredTransfersOfControl;
+    //     makeCDG_rec_cpp_wrapper(s1, returnValueVariableName,
+    //                             node,flowVertex,NULL,
+    //                             &structuredTransfersOfControl,
+    //                             lastInstruction);
+
+    // }
 }

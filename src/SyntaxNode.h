@@ -21,12 +21,22 @@ using namespace Rcpp;
 using namespace boost;
 using namespace std;
 
+class SyntaxLangNode;
+class SyntaxSymbolNode;
 class NodeProcessorWhile;
 class NodeProcessorFor;
 class NodeProcessorIf;
 class NodeProcessorFunction;
 class NodeProcessorFunctionParameters;
-class SyntaxLangNode;
+class NodeProcessorBrace;
+class NodeProcessorParenthesis;
+class NodeProcessorSymbolOrConstant;
+class NodeProcessorCall;
+class NodeProcessorBreak;
+class NodeProcessorNext;
+class NodeProcessorAssignment;
+
+
 
 class SyntaxNode
 {
@@ -55,6 +65,7 @@ public:
     virtual unique_ptr<SyntaxNode> Copy() = 0;
 
     virtual string GetLeftName();
+    virtual bool IsReturnBranch(size_t &branchSize);
 
 
     virtual Context ProcessWhile(NodeProcessorWhile& processor,
@@ -62,7 +73,7 @@ public:
     virtual Context ProcessFor(NodeProcessorFor& processor,
                                  const Context& context);
     virtual Context ProcessForPredicate(NodeProcessorFor& processor,
-                                        const SyntaxLangNode& forNode,
+                                        SyntaxLangNode* forNode,
                                         const Context& context);
     virtual Context ProcessIf(NodeProcessorIf& processor,
                                  const Context& context);

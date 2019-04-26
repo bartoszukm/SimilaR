@@ -23,10 +23,10 @@ int globalCallNumber;
 public:
 GraphType CreateCDG(SyntaxNode* s); 
 
-unique_ptr<NodeProcessor> GetProcessors(bool isLastInstruction=false);
+unique_ptr<NodeProcessor> GetProcessors(bool isLastInstruction=false, bool onlyAddToUses=true, string gen="");
 GraphType& GetGraph();
 map<string, string>& GetAliasesDictionary();
-GetCanonicalName(string s);
+string GetCanonicalName(string s);
 int& GetGlobalCallNumber();
 
 

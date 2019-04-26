@@ -18,10 +18,11 @@ class NodeProcessorSymbolOrConstant : public NodeProcessor
 protected:
     void createNode(SyntaxLangNode* callNode, Context& myContext);
     bool onlyAddToUses;
+    bool isLastInstruction;
 
 public:
 // NodeProcessorSymbolOrConstant();
-NodeProcessorSymbolOrConstant(CDGCreator& cdg, bool onlyAddToUses);
+NodeProcessorSymbolOrConstant(CDGCreator& cdg, bool onlyAddToUses, bool isLastInstruction);
 virtual Context Process(SyntaxNode* s,
                         const Context& context); 
 

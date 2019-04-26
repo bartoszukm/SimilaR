@@ -1,6 +1,7 @@
 #include "NodeProcessorFunctionParameters.h"
 #include "CDGCreator.h"
 #include "SyntaxLangNode.h"
+#include "SyntaxPairlistNode.h"
 
 // NodeProcessorFunction::NodeProcessorFunction() : base()
 // {}
@@ -31,8 +32,6 @@ Context NodeProcessorFunctionParameters::ProcessFunctionParameters(SyntaxPairlis
         g[arg].kill = list<string>();
         g[arg].kill.push_back(parametersNode->Arguments[i]);
         g[arg].lastInstruction = false;
-        g[arg].isLeftSideOfAssign = false;
-        g[arg].arguments.push_back(node->DefaultValues[i]);
 
         // @TODO: czy obslugujemy funkcje, np. x=length(y)?
         std::pair<edge_t, bool> e = add_edge(myContext.ControlVertex, arg, g);
