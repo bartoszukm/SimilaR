@@ -17,6 +17,9 @@
 
 GraphType CDGCreator::CreateCDG(SyntaxLangNode* s)
 {
+    auto loggerFor = spdlog::stderr_color_st("For");
+    loggerFor->set_level(spdlog::level::debug);
+
     unique_ptr<NodeProcessor> processor = GetProcessors();
     g = GraphType(0);
     Context context;

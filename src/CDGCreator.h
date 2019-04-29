@@ -7,6 +7,7 @@
 #include "SyntaxNode.h"
 #include "SyntaxLangNode.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include <stdlib.h>
 #include <stdio.h>
 

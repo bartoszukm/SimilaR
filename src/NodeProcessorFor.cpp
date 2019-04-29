@@ -15,8 +15,9 @@ Context NodeProcessorFor::Process(SyntaxNode* n, const Context& context)
 
 Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& context)
 {
+    auto loggerFor = spdlog::get("For");
     spdlog::debug("ProcessFor()");
-    spdlog::debug("forNode->Children.size(): {0}", forNode->Children.size());
+    loggerFor->debug("forNode->Children.size(): {0}", forNode->Children.size());
 
     this->forNode = forNode;
     GraphType& g = CDG.GetGraph();
@@ -25,12 +26,12 @@ Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& con
     myContext.FlowVertex = context.FlowVertex;
     string gen = forNode->Children[0]->Name;
 
-    spdlog::debug("przetwarzam predykat for");
+    loggerFor->debug("przetwarzam predykat for");
     processor = CDG.GetProcessors(false);
     Context predicateContext = processor->Process(forNode->Children[1].get(), myContext);
     myContext.FlowVertex = predicateContext.FlowVertex;
 
-    spdlog::debug("przetwarzam cialo for");
+    loggerFor->debug("przetwarzam cialo for");
     // normalne cialo for
     auto [ vertices_count_before, vertices_count_after ] = MakeForBody(context, myContext, predicateContext);
 
@@ -42,8 +43,9 @@ Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& con
 
 Context NodeProcessorFor::ProcessForeach(SyntaxLangNode* forNode, const Context& context)
 {
+    auto loggerFor = spdlog::get("For");
     spdlog::debug("ProcessForeach()");
-    spdlog::debug("forNode->Children.size(): {0}", forNode->Children.size());
+    loggerFor->debug("forNode->Children.size(): {0}", forNode->Children.size());
     this->forNode = forNode;
     GraphType& g = CDG.GetGraph();
     Context myContext;
