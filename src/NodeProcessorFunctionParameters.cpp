@@ -11,19 +11,23 @@ NodeProcessorFunctionParameters::NodeProcessorFunctionParameters(CDGCreator& cdg
 
 Context NodeProcessorFunctionParameters::Process(SyntaxNode* n, const Context& context)
 {
+    spdlog::debug("NodeProcessorFunctionParameters::Process()");
     return n->ProcessFunctionParameters(*this, context);
 }
 
 Context NodeProcessorFunctionParameters::ProcessFunctionParameters(SyntaxPairlistNode* parametersNode, const Context& context)
 {
+    spdlog::debug("{:<30}", "ProcessFunctionParameters()");
     GraphType& g = CDG.GetGraph();
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false); // przekazac ze jak symbol to tworzyc nowy node
+//    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false, false); // przekazac ze jak symbol to tworzyc nowy node
     Context myContext;
     myContext.ControlVertex = context.ControlVertex;
     myContext.FlowVertex = context.FlowVertex;
 
+    spdlog::debug("parametersNode->Arguments.size(): {0}", parametersNode->Arguments.size());
     for(size_t i = 0; i < parametersNode->Arguments.size(); i++)
     {
+        spdlog::debug("iteration");
         vertex_t arg = boost::add_vertex(g);
         g[arg].color = color_parameter;
 
@@ -41,4 +45,7 @@ Context NodeProcessorFunctionParameters::ProcessFunctionParameters(SyntaxPairlis
         g[e.first].color = color_control_flow;
         myContext.FlowVertex = arg;
     }
+    spdlog::debug("num_vertices(g): {0}", num_vertices(g));
+    spdlog::debug("{:<30}", "~ProcessFunctionParameters()");
+    return myContext;
 }

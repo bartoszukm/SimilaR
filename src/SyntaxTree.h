@@ -23,7 +23,7 @@ using namespace std;
 class SyntaxTree
 {
 private:
-    unique_ptr<SyntaxNode> root;
+    unique_ptr<SyntaxLangNode> root;
 
     // const char* getLangName(SEXP s);
     // SyntaxNode* processFunction(SEXP s);
@@ -45,6 +45,7 @@ public:
 
     unique_ptr<SyntaxTree> Copy();
     string GetFunctionName();
+    SyntaxLangNode* GetRoot();
 };
 
 #endif

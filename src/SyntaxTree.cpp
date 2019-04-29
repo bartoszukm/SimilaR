@@ -15,7 +15,7 @@ SyntaxTree::SyntaxTree(SEXP s)
     if (TYPEOF(s) != LANGSXP)
         Rf_error("Not a `language` object");
 
-    root = SyntaxNode::ConvertLispToSyntaxNode(s);
+    root.reset(dynamic_cast<SyntaxLangNode*>(SyntaxLangNode::ConvertLispToSyntaxNode(s).get()));
 
     // nr = ++numer;
     // cout << "tworze drzewo nr " << nr << endl;
@@ -87,7 +87,7 @@ int SyntaxTree::GetNodesCount()
 unique_ptr<SyntaxTree> SyntaxTree::Copy()
 {
     unique_ptr<SyntaxTree> t(new SyntaxTree());
-    t->root = root->Copy();
+    t->root.reset(dynamic_cast<SyntaxLangNode*>(root->Copy().get()));
     return t;
 }
 
@@ -95,4 +95,9 @@ string SyntaxTree::GetFunctionName()
 {
     SyntaxLangNode *root_lang = dynamic_cast<SyntaxLangNode*>(root.get());
     return root_lang->Children[0]->Name;
+}
+
+SyntaxLangNode *SyntaxTree::GetRoot()
+{
+    return root.get();
 }

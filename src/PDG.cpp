@@ -24,11 +24,11 @@ GraphType PDGMaker::MakePDG(SEXP s,
                   bool executeChangeWhileLoop)
 {
         vertex_t* entry=NULL;
-
+        // Rcout << "Make CDG" << endl;
         GraphType pdg = cdg.makeCDG_cpp(s, entry);
-
+        // Rcout << "Make DDG" << endl;
         ddg.makeDDG_cpp(pdg,*entry);
-
+        // Rcout << "Make post" << endl;
         if(isDeleteControlFlowEdges) post.deleteControlFlowEdges(pdg);
         if(executeRemoveSingleInstructions) post.removeSingleInstructions(pdg);
         if(executeMergeTheSameInstructions) post.mergeTheSameInstructions(pdg);
@@ -53,4 +53,44 @@ GraphType PDGMaker::MakePDG(SEXP s,
         post.memoryClean(pdg);
         
         return pdg;
+}
+
+GraphType PDGMaker::MakePDG_refactored(SEXP s, bool isDeleteControlFlowEdges, bool executeRemoveSingleInstructions, bool executeMergeTheSameInstructions, bool executeChangeWhileLoop)
+{
+    spdlog::set_level(spdlog::level::debug);
+//    vertex_t* entry=NULL;
+    // Rcout << "Make CDG" << endl;
+    spdlog::debug("Tworze drzewo");
+    SyntaxTree t(s);
+    CDGCreator cdg;
+    spdlog::debug("Tworze CDG");
+    GraphType pdg = cdg.CreateCDG(t.GetRoot());
+    // Rcout << "Make DDG" << endl;
+    spdlog::debug("Tworze DDG");
+    ddg.makeDDG_cpp(pdg,cdg.GetEntry());
+    // Rcout << "Make post" << endl;
+    if(isDeleteControlFlowEdges) post.deleteControlFlowEdges(pdg);
+    if(executeRemoveSingleInstructions) post.removeSingleInstructions(pdg);
+    if(executeMergeTheSameInstructions) post.mergeTheSameInstructions(pdg);
+    if(executeChangeWhileLoop) post.changeWhileLoop(pdg);
+    post.colonToComparison(pdg);
+    post.removeSymbolNodes(pdg);
+
+
+    // graph_traits<GraphType>::vertex_iterator vi, vi_end, next;
+    // tie(vi, vi_end) = vertices(pdg);
+    // for (next = vi; vi != vi_end; vi = next) {
+    //   ++next;
+    //
+    //   Rcout << pdg[*vi].color << " " << pdg[*vi].name << ", " << pdg[*vi].functionName << ", gen:" << pdg[*vi].gen << endl;
+    //   for(auto s : pdg[*vi].uses)
+    //   {
+    //     Rcout << s << ",";
+    //   }
+    //   Rcout << endl;
+    // }
+
+    post.memoryClean(pdg);
+
+    return pdg;
 }

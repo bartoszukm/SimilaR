@@ -15,14 +15,16 @@
 #include "NodeProcessorIf.h"
 
 
-GraphType CDGCreator::CreateCDG(SyntaxNode* s)
+GraphType CDGCreator::CreateCDG(SyntaxLangNode* s)
 {
     unique_ptr<NodeProcessor> processor = GetProcessors();
     g = GraphType(0);
     Context context;
     // context.ControlVertex = ...;
     // context.FlowVertex = ...;
-    processor->Process(s, context);
+    spdlog::debug("{:<30}", "Rozpoczynam processowanie od poczatku");
+    context = processor->Process(s->Children[1].get(), context);
+    spdlog::debug("~CDGCreator::CreateCDG()");
     return g;
 } 
 
@@ -71,4 +73,14 @@ string CDGCreator::GetCanonicalName(string s)
 int& CDGCreator::GetGlobalCallNumber()
 {
     return globalCallNumber;
+}
+
+vertex_t CDGCreator::GetEntry()
+{
+    return entry;
+}
+
+void CDGCreator::SetEntry(vertex_t e)
+{
+    entry = e;
 }

@@ -196,6 +196,9 @@ void NodeProcessorCall::createNode(SyntaxLangNode* callNode, Context& myContext)
     e = add_edge(myContext.ControlVertex, node, g);
     g[e.first].color = color_control_dependency;
 
+    // wykorzystalismy dotychczasowy uses w ten sposob, ze wszystko, co bylo argumentami (inne funkcje, symbole, stale), dalismy do wygenerowanego wierzcholka
+    // teraz chcemy zewnetrznemu wolaczowi podac, jaki gen tworzymy my sami, bez naszych dzieci
+    myContext.Uses.clear();
     myContext.Uses.push_back(CDG.GetCanonicalName(functionName)); // czy ten GetCanonicalName ma tu sens?
 
     myContext.FlowVertex = node;

@@ -15,6 +15,9 @@ Context NodeProcessorFor::Process(SyntaxNode* n, const Context& context)
 
 Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& context)
 {
+    spdlog::debug("ProcessFor()");
+    spdlog::debug("forNode->Children.size(): {0}", forNode->Children.size());
+
     this->forNode = forNode;
     GraphType& g = CDG.GetGraph();
     Context myContext;
@@ -22,10 +25,12 @@ Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& con
     myContext.FlowVertex = context.FlowVertex;
     string gen = forNode->Children[0]->Name;
 
-    unique_ptr<NodeProcessor> processor = CDG.GetProcessors(false);
+    spdlog::debug("przetwarzam predykat for");
+    processor = CDG.GetProcessors(false);
     Context predicateContext = processor->Process(forNode->Children[1].get(), myContext);
     myContext.FlowVertex = predicateContext.FlowVertex;
 
+    spdlog::debug("przetwarzam cialo for");
     // normalne cialo for
     auto [ vertices_count_before, vertices_count_after ] = MakeForBody(context, myContext, predicateContext);
 
@@ -37,6 +42,8 @@ Context NodeProcessorFor::ProcessFor(SyntaxLangNode* forNode, const Context& con
 
 Context NodeProcessorFor::ProcessForeach(SyntaxLangNode* forNode, const Context& context)
 {
+    spdlog::debug("ProcessForeach()");
+    spdlog::debug("forNode->Children.size(): {0}", forNode->Children.size());
     this->forNode = forNode;
     GraphType& g = CDG.GetGraph();
     Context myContext;
@@ -74,9 +81,8 @@ void NodeProcessorFor::MakeArtificialForeachNodes(const Context& context,
     
     int& globalCallNumber = CDG.GetGlobalCallNumber();
     string functionName_length = string("length_")+std::to_string(globalCallNumber++);
-    list<string> length_uses, length_arguments;
+    list<string> length_uses;
     length_uses.push_back(predicateContext.Uses.front());
-    length_arguments.push_back(predicateContext.Uses.front());
     vertex_t node_length;
     node_length = boost::add_vertex(g);
     g[node_length].color = color_functionZeroArgument;
@@ -86,9 +92,6 @@ void NodeProcessorFor::MakeArtificialForeachNodes(const Context& context,
     g[node_length].gen = functionName_length;
     g[node_length].functionName = "length";
     g[node_length].originalFunctionName = "length";
-    g[node_length].arguments = length_arguments;
-    g[node_length].isLeftSideOfAssign = false;
-    g[node_length].isLeftAssign = false;
     
     std::pair<edge_t, bool> e = add_edge(myContext.FlowVertex, node_length, g);
     g[e.first].color = color_control_flow;
@@ -98,11 +101,9 @@ void NodeProcessorFor::MakeArtificialForeachNodes(const Context& context,
     myContext.FlowVertex = node_length;
     
     // :
-    list<string> colon_uses, colon_arguments;
+    list<string> colon_uses;
     colon_uses.push_back("1");
     colon_uses.push_back(functionName_length);
-    colon_arguments.push_back("1");
-    colon_arguments.push_back(functionName_length);
     string functionName_colon = string("colon_")+concatenateStringList(colon_uses)+string("_")+std::to_string(globalCallNumber++);
     vertex_t node_colon;
     node_colon = boost::add_vertex(g);
@@ -113,9 +114,6 @@ void NodeProcessorFor::MakeArtificialForeachNodes(const Context& context,
     g[node_colon].gen = functionName_colon; 
     g[node_colon].functionName = "colon";
     g[node_colon].originalFunctionName = "colon";
-    g[node_colon].arguments = colon_arguments;
-    g[node_colon].isLeftSideOfAssign = false;
-    g[node_colon].isLeftAssign = false;
     
     e = add_edge(myContext.FlowVertex, node_colon, g);
     g[e.first].color = color_control_flow;
@@ -130,6 +128,7 @@ void NodeProcessorFor::MakeArtificialForeachNodes(const Context& context,
 
 std::tuple<size_t, size_t> NodeProcessorFor::MakeForBody(const Context& context, Context& myContext, Context& predicateContext)
 {
+    spdlog::debug("tworze wierzcholek for");
     GraphType& g = CDG.GetGraph();
     node = boost::add_vertex(g);
     g[node].color = color_header;
@@ -148,7 +147,8 @@ std::tuple<size_t, size_t> NodeProcessorFor::MakeForBody(const Context& context,
     myContext.FlowVertex = node;
     // list<pair<vertex_t*, vertex_t*> > structuredTransfersOfControl;
     size_t vertices_count_before = num_vertices(g);
-
+    spdlog::debug("process body for");
+    spdlog::debug("body name: {0}", forNode->Children[2]->Name);
     Context bodyContext = processor->Process(forNode->Children[2].get(), myContext);
 
     // makeCDG_rec_cpp_wrapper(s1, returnValueVariableName,
@@ -174,12 +174,10 @@ void NodeProcessorFor::MakeBracketsInForeach(const Context& context,
     // przeksztalcenie ze wzgledu na foreach
 
     //  stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
-    list<string> bracket_uses, bracket_arguments;
+    list<string> bracket_uses;
     string argument_name = predicateContext.Uses.front();
     bracket_uses.push_back(g[node].gen); // zmienna iterujaca
     bracket_uses.push_back(argument_name); //wektor z ktorego bierzemy
-    bracket_arguments.push_back(g[node].gen);
-    bracket_arguments.push_back(argument_name);
     string functionName_bracket = string("[[_")+concatenateStringList(bracket_uses)+string("_")+std::to_string(globalCallNumber++);
     vertex_t node_bracket;
     node_bracket = boost::add_vertex(g);
@@ -190,9 +188,6 @@ void NodeProcessorFor::MakeBracketsInForeach(const Context& context,
     g[node_bracket].gen = functionName_bracket; 
     g[node_bracket].functionName = "[[";
     g[node_bracket].originalFunctionName = "[[";
-    g[node_bracket].arguments = bracket_arguments;
-    g[node_bracket].isLeftSideOfAssign = false;
-    g[node_bracket].isLeftAssign = false;
     
     std::pair<edge_t, bool> e = add_edge(myContext.FlowVertex, node_bracket, g); //troche watpliwe
     g[e.first].color = color_control_flow;

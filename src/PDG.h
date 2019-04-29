@@ -19,6 +19,10 @@
 #include "CDG.h"
 #include "DDG.h"
 #include "postprocessingPDG.h"
+#include "CDGCreator.h"
+#include "SyntaxTree.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 using namespace Rcpp;
 using namespace std;
@@ -34,6 +38,11 @@ PostprocessingPDG post;
 public:
 
 GraphType MakePDG(SEXP s,
+                  bool isDeleteControlFlowEdges = true,
+                  bool executeRemoveSingleInstructions=true,
+                  bool executeMergeTheSameInstructions=true,
+                  bool executeChangeWhileLoop=true);
+GraphType MakePDG_refactored(SEXP s,
                   bool isDeleteControlFlowEdges = true,
                   bool executeRemoveSingleInstructions=true,
                   bool executeMergeTheSameInstructions=true,

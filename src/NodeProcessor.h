@@ -5,6 +5,7 @@
 #include "graphUtils.h"
 #include "Context.h"
 #include "SyntaxNode.h"
+#include "spdlog/spdlog.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <tuple>
