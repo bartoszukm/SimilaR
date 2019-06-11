@@ -1666,3 +1666,36 @@ test_that("loops8", {
   
 })
 
+test_that("dplyr-apply", {
+  clamp_vectorized1a <- function(x) {
+    lapply(x, function(y) {
+      if (max(y)-min(y) < 1e-5) {
+        {{{{NULL}}}}
+      } else {
+        {{{{(y - min(y))/(max(y)-min(y))}}}}
+      }
+    })
+  }
+  
+  
+  
+  clamp_vectorized1b <- function(x) {
+    x %>% lapply(function(y) {
+      if (max(y)-min(y) < 1e-5) {
+        {{{{NULL}}}}
+      } else {
+        {{{{(y - min(y))/(max(y)-min(y))}}}}
+      }
+    })
+  }
+  
+  res <- SimilaR_fromTwoFunctions(clamp_vectorized1a, 
+                                  clamp_vectorized1b, returnType = "data.frame", aggregation = "both")
+  
+  expect_true(is.data.frame(res))
+  expect_equal(res[1, 3], 1)
+  expect_equal(res[1, 4], 1)
+  expect_equal(res[1, 5], 1)
+})
+
+

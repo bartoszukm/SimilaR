@@ -87,7 +87,8 @@ void makeApplyNode(SEXP s,
                    bool createNode = true,
                    bool lastInstruction = false,
                    bool isLeftAssign = false,
-                   list<string>* additional_uses = nullptr);
+                   list<string>* additional_uses = nullptr,
+                   string dplyrArgument = string(""));
 void makeNameSymbolNode(SEXP s,
                         string returnValueVariableName,
                         const vertex_t& controlVertex,

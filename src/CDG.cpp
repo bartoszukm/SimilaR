@@ -1026,7 +1026,8 @@ void CDGMaker::makeApplyNode(SEXP s,
                              bool createNode,
                              bool lastInstruction,
                              bool isLeftAssign,
-                             list<string>* additional_uses) {
+                             list<string>* additional_uses,
+                             string dplyrArgument) {
   // Rcout << "APPLY - start" << endl;
   boost::graph_traits<GraphType>::in_edge_iterator in_e, in_e_end;
     vertex_t* entry = NULL;
@@ -1092,6 +1093,12 @@ void CDGMaker::makeApplyNode(SEXP s,
     
     // sztuczne wierzchoki (tworzenie wektora), wyciagnac do osobnej funkcji
     // obliczam length(x)
+
+//    Rcout << "vector_name = " << vector_name << endl;
+    if(vector_name == "" && dplyrArgument!= "")
+        vector_name = dplyrArgument;
+//    Rcout << "vector_name2 = " << vector_name << endl;
+
     string functionName_length = string("length_")+std::to_string(global_CallNumber++);
     list<string> length_uses, length_arguments;
     length_uses.push_back(vector_name);
@@ -1226,7 +1233,7 @@ void CDGMaker::makeApplyNode(SEXP s,
               // Rcout << g[i].name << endl;
               // Rcout << g[i].functionName << endl;
               
-              if(g[i].color == color_parameter && it_argument != arguments.end())
+              if(g[i].color == color_parameter && (it_argument != arguments.end() || (i==vertices_count_before && dplyrArgument != "")))
               {
                 // Rcout << "parameter - start" << endl;
                 
@@ -1247,7 +1254,11 @@ void CDGMaker::makeApplyNode(SEXP s,
                 {
                   //  stworz bracket [[]]: korzysta z wektora wejsciowego, generuje cos, co podamy zamiast argumentu y (std:replace, jak w post)
                   list<string> bracket_uses, bracket_arguments;
-                  string argument_name = *it_argument;
+                  string argument_name;
+                  if(i==vertices_count_before && dplyrArgument != "")
+                      argument_name = dplyrArgument;
+                  else
+                      argument_name = *it_argument;
                   bracket_uses.push_back(g[node].gen); // zmienna iterujaca
                   bracket_uses.push_back(argument_name); //wektor z ktorego bierzemy
                   bracket_arguments.push_back(g[node].gen);
@@ -1270,7 +1281,9 @@ void CDGMaker::makeApplyNode(SEXP s,
                   g[e.first].color = color_control_flow;
                   flowVertex = node_bracket;
                   
-                  ++it_argument;
+                  if(!(i==vertices_count_before && dplyrArgument != ""))
+                    ++it_argument;
+
                   bool isFirstOccurenceFound = false;
                   for(size_t j=i+1; j<vertices_count_after; ++j)
                   {
@@ -2024,11 +2037,14 @@ void CDGMaker::makeDplyrNode(SEXP s,
 
     if(isApplyFunction(s))
     {
+//        Rcout << "arguments.front() = " << arguments.front() << endl;
         makeApplyNode(s, returnValueVariableName,
                       controlVertex, flowVertex, my_uses, createNode,
                       lastInstruction,
                       isLeftAssign,
-                      &my_uses);
+                      &my_uses,
+                      arguments.front()
+                      );
     }
     else if(createNode &&
        !isSpecificFunction(s,
