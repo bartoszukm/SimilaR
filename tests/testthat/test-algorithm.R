@@ -1698,4 +1698,45 @@ test_that("dplyr-apply", {
   expect_equal(res[1, 5], 1)
 })
 
+test_that("braces-dead code", {
+  f1 <- function(x) {
+    a <- x + 2
+    b <- a - 2
+    b
+  }
+  
+  
+  
+  f2 <- function(x) {
+    a <- x + 2
+    z <- sum(x)^2
+    b <- a - 2
+    b
+  }
+  
+  f3 <- function(x) {
+    a <- x + 2
+    z <- {sum(x)^2}
+    b <- a - 2
+    b
+  }
+  
+  funs <- list(f1, f2, f3)
+  
+  res <- NULL
+  for (i in 1:(length(funs)-1))
+    for (j in (i+1):length(funs))
+    {
+      res <- rbind(res, SimilaR_fromTwoFunctions(funs[[i]], 
+                                                 funs[[j]],
+                                                 functionNames=as.character(c(i,j)),
+                                                 aggregation="both"))
+      
+    }
+  expect_true(is.data.frame(res))
+  expect_equal(sum(res[1:3, 3] >= rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 4] >= rep(1, nrow(res))), length(rep(1, nrow(res))))
+  expect_equal(sum(res[1:3, 5] == rep(1, nrow(res))), length(rep(1, nrow(res))))
+})
+
 

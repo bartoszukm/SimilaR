@@ -1758,13 +1758,27 @@ void CDGMaker::makeAssignmentNode(SEXP s,
         }
 
         size_t my_uses_size_before = uses.size();
-        makeCallNode(right,
-                     getLeftVariable(CAR(CDR(s))),
-                     controlVertex, flowVertex, uses,
-                     true,
-                     lastInstruction,
-                     true,
-                     isStopifnotCall);
+
+        //super brzydki hack, żeby taki kod:
+        // z <- { sum(longName**2) }
+        // dostał lastInstruction=false i żeby został usunięty jako dead code
+        if(graphUtils::getCanonicalName(getLangName(right),
+                               variableName2variableName) == "{")
+        {
+            makeCDG_rec_cpp_wrapper(CDR(right), getLeftVariable(CAR(CDR(s))),
+                                         controlVertex, flowVertex,NULL, NULL,
+                                         false);
+        }
+        else
+        {
+            makeCallNode(right,
+                         getLeftVariable(CAR(CDR(s))),
+                         controlVertex, flowVertex, uses,
+                         true,
+                         lastInstruction,
+                         true,
+                         isStopifnotCall);
+        }
         size_t my_uses_size_after = uses.size();
 
         auto it = uses.begin();
