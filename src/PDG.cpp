@@ -51,6 +51,7 @@ GraphType PDGMaker::MakePDG(SEXP s,
         // }
         
         post.memoryClean(pdg);
+        delete entry;
         
         return pdg;
 }

@@ -613,8 +613,7 @@ void CDGMaker::makeIfNode(SEXP s,
               g[node2].uses = uses;
   
               flowVertex = node2;
-              vertex_t* pnode = new vertex_t;
-              *pnode = node2;
+              
 
 
               if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
@@ -623,13 +622,32 @@ void CDGMaker::makeIfNode(SEXP s,
               }
               else
               {
+                vertex_t* pnode = new vertex_t;
+                *pnode = node2;
                 
+                makeCDG_rec_cpp_wrapper(klamra_if ? s1 : ((TYPEOF(s1)==SYMSXP || TYPEOF(s1)==LANGSXP || TYPEOF(s1)==LISTSXP) ? (TYPEOF(CAR(s1))==SYMSXP || TYPEOF(CAR(s1)) == LANGSXP ? CAR(s1) : s1) : s1), 
+                                        returnValueVariableName,node2,
+                                        flowVertex, pnode,
+                                        structuredTransfersOfControl,
+                                        lastInstruction);
                 
-                  makeCDG_rec_cpp_wrapper(klamra_if ? s1 : ((TYPEOF(s1)==SYMSXP || TYPEOF(s1)==LANGSXP || TYPEOF(s1)==LISTSXP) ? (TYPEOF(CAR(s1))==SYMSXP || TYPEOF(CAR(s1)) == LANGSXP ? CAR(s1) : s1) : s1), 
-                                          returnValueVariableName,node2,
-                                          flowVertex, pnode,
-                                          structuredTransfersOfControl,
-                                          lastInstruction);
+                if(structuredTransfersOfControl == NULL)
+                  delete pnode;
+                else
+                {
+                  bool found = false;
+                  for (std::list<std::pair<vertex_t*, vertex_t*> >::iterator it =
+                       structuredTransfersOfControl->begin();
+                       it != structuredTransfersOfControl->end(); it++)
+                  {
+                    if(it->first == pnode)
+                    {
+                      found = true;
+                    }
+                  }
+                  if(!found)
+                    delete pnode;
+                }
               }
               e = add_edge(flowVertex, node, g);
               g[e.first].color = color_control_flow;
@@ -669,14 +687,17 @@ void CDGMaker::makeIfNode(SEXP s,
               g[node2].uses = uses;
   
               flowVertex = node2;
-              vertex_t* pnode = new vertex_t;
-              *pnode = node2;
+              
   
               if(TYPEOF(CAR(s1)) != SYMSXP && TYPEOF(CAR(s1))!=LANGSXP)
               {
                   makeConstantNode(CAR(s1),returnValueVariableName,node2,flowVertex);
               }
               else
+              {
+                vertex_t* pnode = new vertex_t;
+                *pnode = node2;
+                
                   makeCDG_rec_cpp_wrapper(klamra_else ? s1 : ((TYPEOF(s1)==
                                                                SYMSXP ||
                                                                TYPEOF(s1)==
@@ -701,6 +722,25 @@ void CDGMaker::makeIfNode(SEXP s,
                                           flowVertex, pnode,
                                           structuredTransfersOfControl,
                                           lastInstruction);
+                  
+                  if(structuredTransfersOfControl == NULL)
+                    delete pnode;
+                  else
+                  {
+                    bool found = false;
+                    for (std::list<std::pair<vertex_t*, vertex_t*> >::iterator it =
+                         structuredTransfersOfControl->begin();
+                         it != structuredTransfersOfControl->end(); it++)
+                    {
+                      if(it->first == pnode)
+                      {
+                        found = true;
+                      }
+                    }
+                    if(!found)
+                      delete pnode;
+                  }
+              }
               e = add_edge(flowVertex, node, g);
               g[e.first].color = color_control_flow;
               flowVertex = node;
