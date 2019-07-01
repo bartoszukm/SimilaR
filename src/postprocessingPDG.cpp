@@ -64,6 +64,11 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
     set<string> variablesChangedInLoop;
     map<string, vertex_t> initialVertices;
     vector<vertex_t> toRemove;
+    vector<string> toRemove_name;
+    vector<int> toRemove_color;
+    vector<string> toRemove_functionName;
+    vector<pair<vertex_t, vertex_t>> toRemoveEdges;
+    
     bool changes = true;
     while(changes)
     {
@@ -112,7 +117,11 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                           
                           if(g[nei2].uses.size() == 1)
                           {
+                            changes = true;
                             toRemove.push_back(nei2);
+                            toRemove_color.push_back(g[nei2].color);
+                            toRemove_functionName.push_back(g[nei2].functionName);
+                            toRemove_name.push_back(g[nei2].name);
                           }
                       }
                   }
@@ -135,7 +144,6 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                     //   Rcout << s << ",";
                     // }
                     // Rcout << endl << "---" << endl;
-                    
                       variablesChangedInLoop.emplace(g[nei].gen);
                       for (tie(out_e2, out_e_end2) = out_edges(nei, g); // chodzimy po sasiadach (data sasiadach) tego wierzcholka i <- i + 1
                            out_e2 != out_e_end2; ++out_e2)
@@ -160,8 +168,9 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                                         bool> e = add_edge(*vi, target(*out_e2,
                                                                        g), g); //gdy ktos uzywa zmiennej iterujacej, to dodaje zaleznosc od while
                               g[e.first].color = color_data_dependency;
-                              remove_edge(initialVertices[g[nei].gen], // a usuwam zaleznosc miedzy tworzeniem tej zmiennej przed petla (i<-1) a jej uzyciem
-                                          target(*out_e2, g), g);
+                              toRemoveEdges.push_back(std::make_pair(initialVertices[g[nei].gen], target(*out_e2, g)));
+                              // remove_edge(initialVertices[g[nei].gen], // a usuwam zaleznosc miedzy tworzeniem tej zmiennej przed petla (i<-1) a jej uzyciem
+                                          // target(*out_e2, g), g);
                           }
                       }
                       if(*next == nei)
@@ -178,21 +187,49 @@ void PostprocessingPDG::changeWhileLoop(GraphType& g)
                       // }
                       // Rcout << endl << "---" << endl;
                       
-                      clear_vertex(nei, g); // usuwam i <- i + 1
-                      remove_vertex(nei, g);
+                      toRemove.push_back(nei);
+                      toRemove_color.push_back(g[nei].color);
+                      toRemove_functionName.push_back(g[nei].functionName);
+                      toRemove_name.push_back(g[nei].name);
+                      
+                      // clear_vertex(nei, g); // usuwam i <- i + 1
+                      // remove_vertex(nei, g);
                   }
   
               }
               
-              for(size_t i=0;i<toRemove.size(); ++i)
-              {
-                clear_vertex(toRemove[i], g);
-                remove_vertex(toRemove[i], g);
-              }
-              toRemove.clear();
-  
+              if(changes)
+                break;
           }
       }
+      
+      for(size_t i=0;i<toRemoveEdges.size(); ++i)
+      {
+        if(out_degree(toRemoveEdges[i].first,g) > 0 &&  in_degree(toRemoveEdges[i].second,g) > 0)
+          remove_edge(toRemoveEdges[i].first, toRemoveEdges[i].second, g);
+      }
+      
+      for(size_t i=0;i<toRemove.size(); ++i)
+      {
+        
+        graph_traits<GraphType>::vertex_iterator vi_remove, vi_end_remove;
+        for (tie(vi_remove, vi_end_remove) = vertices(g); vi_remove != vi_end_remove; vi_remove++) {
+          
+          if(g[*vi_remove].name == toRemove_name[i] && g[*vi_remove].functionName == toRemove_functionName[i] && g[*vi_remove].color == toRemove_color[i])            
+          {
+            clear_vertex(*vi_remove, g);
+            remove_vertex(*vi_remove, g);
+            break;
+          }
+        }
+      }
+      
+      toRemove.clear();
+      toRemove_color.clear();
+      toRemove_functionName.clear();
+      toRemove_name.clear();
+      toRemoveEdges.clear();
+      
     }
 
     for(auto it = initialVertices.begin(); it!=initialVertices.end(); ++it)
@@ -235,8 +272,8 @@ void PostprocessingPDG::removeSingleInstructions(GraphType& g)
             // Rcout << "*vi_end = " << *vi_end << endl;
             // Rcout << "*vi = " << *vi << endl;
             // Rcout << "*out_degree(*vi,g) = " << out_degree(*vi, g) << endl;
-            // Rcout << "g[*vi].functionName = " << g[*vi].functionName << endl;
-            // Rcout << "g[*vi].lastInstruction = " << g[*vi].lastInstruction << endl;
+//             Rcout << "g[*vi].functionName = " << g[*vi].functionName << endl;
+//             Rcout << "g[*vi].lastInstruction = " << g[*vi].lastInstruction << endl;
             // Rcout << "g[*vi].name = " << g[*vi].name << endl;
             // Rcout << "count = " << std::count(g.vertex_set().begin(), g.vertex_set().end(), *vi) << endl;
             // Rcout << graphUtils::getCanonicalName(g[*vi].functionName, g[graph_bundle].variableName2variableName) << endl;
