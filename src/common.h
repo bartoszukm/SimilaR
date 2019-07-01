@@ -144,6 +144,17 @@ struct Vertex
 
     bool isPaired;
     bool importanceAssigned;
+    
+    Vertex()
+    {
+      isImportant = false;
+      isLeftAssign = false;
+      isPaired = false;
+      importanceAssigned = false;
+      lastInstruction = false;
+      isLeftSideOfAssign = false;
+      
+    }
 };
 
 struct Edge {int color; };
