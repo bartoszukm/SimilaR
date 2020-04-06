@@ -157,7 +157,16 @@ struct Vertex
     }
 };
 
-struct Edge {int color; };
+struct Edge {
+
+  int color;
+
+  Edge()
+  {
+    color = 0;
+  }
+
+};
 
 struct GraphPro
 {
