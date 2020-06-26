@@ -1,5 +1,5 @@
 ##    SimilaR package for R
-##    Copyright (C) 2018-2019 by M. Bartoszuk, M. Gagolewski
+##    Copyright (C) 2018-2020 by M. Bartoszuk, M. Gagolewski
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@
 #' @docType package
 #' @author Maciej Bartoszuk, Marek Gagolewski
 #'
-#' @references
-#' \emph{\pkg{SimilaR} Package homepage}, \url{http://SimilaR.rexamine.com/}
 #' @useDynLib SimilaR, .registration=TRUE
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils capture.output

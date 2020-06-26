@@ -1,5 +1,5 @@
 ##    SimilaR package for R
-##    Copyright (C) 2018-2019-2019 by by M. Bartoszuk, M. Gagolewski
+##    Copyright (C) 2018-2020 by M. Bartoszuk, M. Gagolewski
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ readFilesAndGetFunctionNames <-function(dirname, submissionType=2, rewriteFiles=
   filesNames <- getFileNamesWithPattern(dirname,"\\.R$|\\.r$")
   if(length(filesNames) <= 1 && submissionType==2)
   {
-    stop(stri_paste("Number of files with extension *.R in directory '", dirname, "' is less or equal 1 while fileTypes is equal to 'file'."))
+    stop(stri_paste("Number of files named *.R in directory '", dirname, "' is less less than or equal 1 while fileTypes is equal to 'file'."))
   }
   if(length(filesNames) == 0)
   {
@@ -56,11 +56,12 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
    }
 
    errorText <- character(0)
-   parses <- lapply(filesText,function(x){lapply(x,function(el){tryCatch(parse(text=el,encoding="UTF-8"),
-                                                               error=function(e) {
-                                                                  errorText <<- c(errorText,paste(e,"\n"))
-                                                                     return(NA)
-                                                                     })})})
+   parses <- lapply(filesText,function(x){
+   lapply(x,function(el){tryCatch(parse(text=el,encoding="UTF-8"),
+    error=function(e) {
+         errorText <<- c(errorText,paste(e,"\n"))
+         return(NA)
+         })})})
 
 
    notParsed <- unlist(filesNames)[unlist(lapply(parses,is.na))]
@@ -68,7 +69,7 @@ getFunctionsFromListFiles <- function(files,filesNames, submissionType, rewriteF
    {
       filesNotParsed <- paste(notParsed, collapse=", ")
       errorText <- paste(notParsed,errorText,collapse="\n")
-      errorText <- paste(errorText,"\nFiles failed to parse: ",filesNotParsed)
+      errorText <- paste(errorText,"\nFailed to parse the following files: ",filesNotParsed)
       stop(stri_paste("Files not parsed: ", errorText))
    }
 

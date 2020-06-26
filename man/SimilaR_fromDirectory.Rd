@@ -2,14 +2,26 @@
 % Please edit documentation in R/SimilaR_fromDirectory.R
 \name{SimilaR_fromDirectory}
 \alias{SimilaR_fromDirectory}
-\title{Quantify Similarity of All Pairs of Functions}
+\alias{SimilaR_fromTwoFunctions}
+\title{Quantify the Similarity of Pairs of R Functions}
 \usage{
-SimilaR_fromDirectory(dirname, returnType = c("data.frame", "matrix"),
-  fileTypes = c("function", "file"), aggregation = c("tnorm", "sym",
-  "both"))
+SimilaR_fromDirectory(
+  dirname,
+  returnType = c("data.frame", "matrix"),
+  fileTypes = c("function", "file"),
+  aggregation = c("tnorm", "sym", "both")
+)
+
+SimilaR_fromTwoFunctions(
+  function1,
+  function2,
+  functionNames,
+  returnType = c("data.frame", "matrix"),
+  aggregation = c("tnorm", "sym", "both")
+)
 }
 \arguments{
-\item{dirname}{path to a directory with *.R source files}
+\item{dirname}{path to a directory with  source files named \code{*.R}}
 
 \item{returnType}{\code{"data.frame"} or \code{"matrix"}; indicates the output object type}
 
@@ -20,48 +32,57 @@ of functions extracted from the source files in \code{dirname} should be compare
 
 \item{aggregation}{\code{"sym"}, \code{"tnorm"}, or \code{"both"};
 specifies which model of similarity asymmetry should be used;
-\code{"sym"} means that one (overall) value of similarity is computed;
+\code{"sym"} means that one (overall) similarity degree is computed;
 \code{"both"} evaluates and returns the degree to which the first function
 in a function pair is similar ("contained in", "is subset of") to the
 second one, and, separately, the extent to which the second function is
 similar to the first one;
 \code{"tnorm"} computes two similarity values and aggregates them
 to a single number}
+
+\item{function1}{a first function object to compare}
+
+\item{function2}{a second function object to compare}
+
+\item{functionNames}{optional functions' names to be included in the output}
 }
 \value{
 If \code{returnType} is equal to "data.frame", a data frame
 that gives the information about the similarity of the inspected
 pairs of functions, row by row, is returned.
-Columns of the data frame are as follows:
+The data frame has the following columns:
 \itemize{
      \item \code{name1} - the name of the first function in a pair
      \item \code{name2} - the name of the second function in a pair
      \item \code{SimilaR} - values in the [0,1] interval as returned by the SimilaR algorithm;
           1 denotes that the functions are equivalent, while 0 means that they are totally dissimilar;
           if \code{aggregation} is equal to \code{"both"}, two similarity values are given:
-          the one with suffix \code{"12"}, which means how much the first function is a subset of the second,
-          and the another one with suffix \code{"21"} which means how much the second function is a subset of the first one
-     \item \code{decision} - 0 or 1; 1 means that two functions are classified as similar, and 0 otherwise.
-
+          the one with suffix \code{"12"} quantifies the degree to which the first function is a subset of the second,
+          and the another one with suffix \code{"21"} measures the extent to which the second function is a subset of the first one
+     \item \code{decision} - 0 or 1; 1 means that two functions are classified as similar and 0 otherwise.
 }
 Rows in the data frame are sorted with respect to the \code{SimilaR}
-column (descending).
+column (descending). Of course, \code{SimilaR_fromTwoFunctions} gives
+a data frame with only one row.
 
 If \code{returnType} is equal to \code{"matrix"}, a square matrix
 is returned. The element at index (i,j) equals to the similarity degree
 between the i-th and the j-th function.
 When \code{aggregation} is equal to \code{"sym"} or \code{"tnorm"},
 the matrix is symmetric.
-Column names and row names of the matrix are names of the compared functions.
+Column names and row names of the matrix are generated from the names
+of the functions being compared.
 }
 \description{
-An implementation of the SimilaR algorithm - a novel method to quantify
-the similarity of R functions based on program dependence graphs.
+An implementation of the SimilaR algorithm - a method to quantify
+the similarity of R functions based on Program Dependence Graphs.
 Possible use cases include detection of code clones for improving
 software quality and of plagiarism among students' homework assignments.
 
-\code{SimilaR_fromDirectory} scans for function definition in *.R files
-in a given directory and performs pairwise comparisons.
+\code{SimilaR_fromDirectory} scans for function definitions in all \code{*.R}
+source files in a given directory and performs pairwise comparisons.
+
+\code{SimilaR_fromTwoFunctions} compares the code-base of two function objects.
 }
 \details{
 Note that, depending on the \code{"aggregation"} argument, the
@@ -72,6 +93,36 @@ The user might possibly wish to aggregate these two values by means of some
 custom aggregation function.
 }
 \examples{
+f1 <- function(x) {x*x}
+f2 <- function(x,y) {x+y}
+
+## A data frame is returned: 1 row, 4 columns
+SimilaR_fromTwoFunctions(f1,
+                         f2,
+                         returnType = "data.frame",
+                         aggregation = "tnorm")
+
+## Custom names in the returned data frame
+SimilaR_fromTwoFunctions(f1,
+                         f2,
+                         functionNames = c("first", "second"),
+                         returnType = "data.frame",
+                         aggregation = "tnorm")
+
+## A data frame is returned: 1 row, 5 columns
+SimilaR_fromTwoFunctions(f1,
+                         f2,
+                         returnType = "data.frame",
+                         aggregation = "both")
+
+## A non-symmetric square matrix is returned,
+## with 2 rows and 2 columns
+SimilaR_fromTwoFunctions(f1,
+                         f2,
+                         returnType = "matrix",
+                         aggregation = "both")
+
+
 ## Typical example, where we wish to compare the functions from different files,
 ## but we do not want to compare the functions from the same file.
 ## There will be one value describing the overall similarity level.
@@ -82,7 +133,7 @@ SimilaR_fromDirectory(system.file("testdata","data",package="SimilaR"),
 
 ## In this example we want to compare every pair of functions: even those
 ## defined in the same file. Two (non-symmetric) similarity degrees
-## are output.
+## are reported.
 SimilaR_fromDirectory(system.file("testdata","data2",package="SimilaR"),
                       returnType = "data.frame",
                       fileTypes="function",
@@ -116,8 +167,5 @@ M. (Eds.), \emph{Proc. IFSA/EUSFLAT 2015}, Atlantis Press, 2015, pp. 419-426.
 Bartoszuk M., Gagolewski M., \emph{A fuzzy R code similarity detection algorithm},
 In: Laurent A. et al. (Eds.), \emph{Information Processing and Management of Uncertainty in Knowledge-Based Systems,
 Part III (CCIS 444)}, Springer-Verlag, Heidelberg, 2014, pp. 21-30.
-}
-\seealso{
-Other SimilaR: \code{\link{SimilaR_fromTwoFunctions}}
 }
 \concept{SimilaR}

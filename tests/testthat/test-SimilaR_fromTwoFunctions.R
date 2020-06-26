@@ -1,5 +1,5 @@
 ##    SimilaR package for R
-##    Copyright (C) 2018 M. Bartoszuk, M. Gagolewski
+##    Copyright (C) 2018-2020 M. Bartoszuk, M. Gagolewski
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -19,10 +19,10 @@ library("SimilaR")
 context("SimilaR_fromTwoFunctions")
 
 test_that("simple_f1f2", {
-  
+
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                       f2,
                                                    returnType = "data.frame",
@@ -34,10 +34,10 @@ test_that("simple_f1f2", {
 })
 
 test_that("function1 is not a function", {
-  
+
   f1 <- c(1,2,3)
   f2 <- function(x,y) {x+y}
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                       f2,
                                                       returnType = "data.frame",
@@ -45,10 +45,10 @@ test_that("function1 is not a function", {
 })
 
 test_that("function2 is not a function", {
-  
+
   f1 <- function(x) {x*x}
   f2 <- c(1,2,3)
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                       f2,
                                                       returnType = "data.frame",
@@ -61,7 +61,7 @@ test_that("function2 is not a function", {
 test_that("sym_dataframe", {
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                       f2,
                                                    returnType = "data.frame",
@@ -75,7 +75,7 @@ test_that("sym_dataframe", {
 test_that("tnorm_dataframe", {
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                       f2,
                                                    returnType = "data.frame",
@@ -89,7 +89,7 @@ test_that("tnorm_dataframe", {
 test_that("both_dataframe", {
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                       f2,
                                                       returnType = "data.frame",
@@ -101,12 +101,12 @@ test_that("both_dataframe", {
 })
 
 test_that("match_arg_aggregation", {
-  
+
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
-                                                      f2, 
+                                                      f2,
                                                       returnType = "data.frame"
                                                       )
   expect_true(is.data.frame(dataFrameWithAssessment))
@@ -116,12 +116,12 @@ test_that("match_arg_aggregation", {
 })
 
 test_that("match_arg_returnType", {
-  
+
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1,
-                                                      f2, 
+                                                      f2,
                                                       aggregation = "both"
   )
   expect_true(is.data.frame(dataFrameWithAssessment))
@@ -131,10 +131,10 @@ test_that("match_arg_returnType", {
 })
 
 test_that("match_arg", {
-  
+
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, f2)
   expect_true(is.data.frame(dataFrameWithAssessment))
   expect_equal(ncol(dataFrameWithAssessment), 4)
@@ -146,11 +146,11 @@ test_that("match_arg", {
 ######################################
 
 test_that("functionNames1", {
-  
+
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
   funs <- list(f1, f2)
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(funs[[1]], funs[[2]])
   expect_true(is.data.frame(dataFrameWithAssessment))
   expect_equal(ncol(dataFrameWithAssessment), 4)
@@ -159,10 +159,10 @@ test_that("functionNames1", {
 })
 
 test_that("functionNames2", {
-  
+
   f1 <- function(x) {x*x}
   `name<-` <- function(x){x*x}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`)
   expect_true(is.data.frame(dataFrameWithAssessment))
   expect_equal(ncol(dataFrameWithAssessment), 4)
@@ -171,10 +171,10 @@ test_that("functionNames2", {
 })
 
 test_that("functionNames3", {
-  
+
   f1 <- function(x) {x*x}
   `name<-` <- function(x){x*x}
-  
+
   dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`, functionNames = c("first", "second<-"))
   expect_true(is.data.frame(dataFrameWithAssessment))
   expect_equal(ncol(dataFrameWithAssessment), 4)
@@ -185,18 +185,18 @@ test_that("functionNames3", {
 })
 
 test_that("functionNames4", {
-  
+
   f1 <- function(x) {x*x}
   `name<-` <- function(x){x*x}
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`, functionNames = c("first", "second<-", "three")))
 })
 
 test_that("functionNames5", {
-  
+
   f1 <- function(x) {x*x}
   `name<-` <- function(x){x*x}
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromTwoFunctions(f1, `name<-`, functionNames = c(1, 2)))
 })
 
@@ -207,7 +207,7 @@ test_that("functionNames5", {
 test_that("sym_matrix", {
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   matrixWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                    f2,
                                                    returnType = "matrix",
@@ -224,7 +224,7 @@ test_that("sym_matrix", {
 test_that("tnorm_matrix", {
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   matrixWithAssessment <- SimilaR_fromTwoFunctions(f1,
                                                    f2,
                                                 returnType = "matrix",
@@ -241,7 +241,7 @@ test_that("tnorm_matrix", {
 test_that("both_matrix", {
   f1 <- function(x) {x*x}
   f2 <- function(x,y) {x+y}
-  
+
   matrixWithAssessment <- SimilaR_fromTwoFunctions(f1,f2,
                                                 returnType = "matrix",
                                                 aggregation = "both")

@@ -8,9 +8,6 @@
 \description{
 See \code{\link{SimilaR_fromDirectory}()} for details.
 }
-\references{
-\emph{\pkg{SimilaR} Package homepage}, \url{http://SimilaR.rexamine.com/}
-}
 \author{
 Maciej Bartoszuk, Marek Gagolewski
 }

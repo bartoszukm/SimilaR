@@ -1,5 +1,5 @@
 ##    SimilaR package for R
-##    Copyright (C) 2018 M. Bartoszuk, M. Gagolewski
+##    Copyright (C) 2018-2020 M. Bartoszuk, M. Gagolewski
 ##
 ##    This program is free software: you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ context("SimilaR_fromDirectory")
 
 test_that("simple_file", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                      fileTypes="file",
@@ -33,7 +33,7 @@ test_that("simple_file", {
 
 test_that("simple_file_data2", {
   dirname = system.file("testdata","data2",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                      fileTypes="file",
@@ -46,7 +46,7 @@ test_that("simple_file_data2", {
 
 test_that("simple_function_data2", {
   dirname = system.file("testdata","data2",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                                               fileTypes="function",
@@ -60,7 +60,7 @@ test_that("simple_function_data2", {
 
 test_that("simple_function", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                      fileTypes="file",
@@ -73,7 +73,7 @@ test_that("simple_function", {
 
 test_that("match_arg_returnType", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                    fileTypes="file",
                                                    aggregation = "sym")
@@ -85,7 +85,7 @@ test_that("match_arg_returnType", {
 
 test_that("match_arg_fileTypes", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                    returnType = "data.frame",
                                                    aggregation = "sym")
@@ -97,7 +97,7 @@ test_that("match_arg_fileTypes", {
 
 test_that("match_arg_aggregation", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                    fileTypes="file",
                                                    returnType = "data.frame")
@@ -109,7 +109,7 @@ test_that("match_arg_aggregation", {
 
 test_that("match_arg", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME) #file.path(maindir,"tests","testthat", "data")
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname)
   expect_true(is.data.frame(dataFrameWithAssessment))
   expect_equal(ncol(dataFrameWithAssessment), 4)
@@ -122,7 +122,7 @@ test_that("match_arg", {
 
 test_that("notParsing", {
   dirname = system.file("testdata","data_notParsing",package=PACKAGE_NAME)
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                   returnType = "data.frame",
                                                               fileTypes="function",
@@ -131,7 +131,7 @@ test_that("notParsing", {
 
 test_that("emptyDirectory", {
   dirname = system.file("testdata","data_empty",package=PACKAGE_NAME)
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                                 returnType = "data.frame",
                                                                 fileTypes="function",
@@ -140,7 +140,7 @@ test_that("emptyDirectory", {
 
 test_that("notExistingDirectory", {
   dirname = system.file("testdata","data_notExists",package=PACKAGE_NAME)
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                                 returnType = "data.frame",
                                                                 fileTypes="function",
@@ -149,7 +149,7 @@ test_that("notExistingDirectory", {
 
 test_that("oneFile_function", {
   dirname = system.file("testdata","data_oneFile",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                                 returnType = "data.frame",
                                                                 fileTypes="function",
@@ -162,12 +162,12 @@ test_that("oneFile_function", {
 
 test_that("oneFile_file", {
   dirname = system.file("testdata","data_oneFile",package=PACKAGE_NAME)
-  
+
   expect_error(dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                                                 returnType = "data.frame",
                                                                 fileTypes="file",
                                                                 aggregation = "sym"))
-  
+
 })
 
 #############################
@@ -175,7 +175,7 @@ test_that("oneFile_file", {
 
 test_that("sym_dataframe", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                                               fileTypes="file",
@@ -188,7 +188,7 @@ test_that("sym_dataframe", {
 
 test_that("tnorm_dataframe", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                                               fileTypes="file",
@@ -201,7 +201,7 @@ test_that("tnorm_dataframe", {
 
 test_that("both_dataframe", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   dataFrameWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "data.frame",
                                                               fileTypes="file",
@@ -218,7 +218,7 @@ test_that("both_dataframe", {
 
 test_that("sym_matrix", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   matrixWithAssessment <- SimilaR_fromDirectory(dirname,
                                      returnType = "matrix",
                                      fileTypes="file",
@@ -234,7 +234,7 @@ test_that("sym_matrix", {
 
 test_that("tnorm_matrix", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   matrixWithAssessment <- SimilaR_fromDirectory(dirname,
                                   returnType = "matrix",
                                   fileTypes="file",
@@ -250,7 +250,7 @@ test_that("tnorm_matrix", {
 
 test_that("both_matrix", {
   dirname = system.file("testdata","data",package=PACKAGE_NAME)
-  
+
   matrixWithAssessment <- SimilaR_fromDirectory(dirname,
                                   returnType = "matrix",
                                   fileTypes="file",
